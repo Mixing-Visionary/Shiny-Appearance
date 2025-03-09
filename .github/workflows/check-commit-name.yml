@@ -1,0 +1,23 @@
+name: Check Commit Message
+
+on:
+  push:
+
+jobs:
+  check-commit-message:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check commit message format
+        run: |
+          commit_message="${{ github.event.head_commit.message }}"
+          regex="^SCRUM-[0-9]+ .+"
+          echo "Commit message: $commit_message"
+
+          if [[ ! "$commit_message" =~ $regex ]]; then
+            echo "Error: Commit message does not match the required format: '[Номер задачи] [Описание задачи]'"
+            exit 1
+          else
+            echo "Commit message is in the correct format."
+          fi

@@ -1,0 +1,25 @@
+name: Check Branch Name
+
+on:
+  pull_request:
+    branches: "master"
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  check-branch-name:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check branch name format
+        run: |
+          branch_name="${{ github.head_ref }}"
+          regex="^SCRUM-[0-9]+$"
+          echo "Branch name: $branch_name"
+          
+          if [[ ! "$branch_name" =~ $regex ]]; then
+            echo "Error: Branch name does not match the required format: '[Номер задачи]'"
+            exit 1
+          else
+            echo "Branch name is in the correct format."
+          fi

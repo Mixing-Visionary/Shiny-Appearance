@@ -1,0 +1,25 @@
+name: Check PR Title
+
+on:
+  pull_request:
+    branches: "master"
+    types: [opened, edited, synchronize, closed, reopened]
+
+jobs:
+  check-pr-title:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check pull request title format
+        run: |
+          pr_title="${{ github.event.pull_request.title }}"
+          regex="^SCRUM-[0-9]+ .+"
+          echo "Pull request title: $pr_title"
+          
+          if [[ ! "$pr_title" =~ $regex ]]; then
+            echo "Error: Pull request title does not match the required format: '[Номер задачи] [Описание задачи]'"
+            exit 1
+          else
+            echo "Pull request title is in the correct format."
+          fi
