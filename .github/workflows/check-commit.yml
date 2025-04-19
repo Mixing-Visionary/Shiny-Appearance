@@ -1,18 +1,17 @@
-name: Check Commit Message
+name: Check commit
 
 on:
   push:
+    branches-ignore: ['master', 'release/**']
 
 jobs:
   check-commit-message:
     runs-on: ubuntu-latest
-
     steps:
-
       - name: Check commit message format
         run: |
           commit_message="${{ github.event.head_commit.message }}"
-          regex="^SCRUM-[0-9]+ .+"
+          regex="^SCRUM-[1-9][0-9]* .+"
           echo "Commit message: $commit_message"
 
           if [[ ! "$commit_message" =~ $regex ]]; then
