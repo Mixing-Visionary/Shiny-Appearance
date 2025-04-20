@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.visionary_android"
+    namespace = "ru.visionary.mixing.shiny_appearance"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.visionary_android"
+        applicationId = "ru.visionary.mixing.shiny_appearance"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -41,7 +41,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.12"
     }
     packaging {
         resources {
@@ -51,7 +51,19 @@ android {
 }
 
 dependencies {
+    val nav_version = "2.8.4"
+    // Jetpack Compose integration
+    implementation("androidx.navigation:navigation-compose:$nav_version")
 
+    // Views/Fragments integration
+    implementation("androidx.navigation:navigation-fragment:$nav_version")
+    implementation("androidx.navigation:navigation-ui:$nav_version")
+
+    // Feature module support for Fragments
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
+
+    // Testing Navigation
+    androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

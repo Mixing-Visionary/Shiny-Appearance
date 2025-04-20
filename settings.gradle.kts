@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Visionary-android"
+rootProject.name = "Shiny-appearance"
 include(":app")
  

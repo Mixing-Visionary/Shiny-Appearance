@@ -1,3 +1,25 @@
 <resources>
-    <string name="app_name">Visionary-android</string>
+    <string name="app_name">Visionary</string>
+    <string name="skip">Пропустить</string>
+    <string name="google_entry">Войти с помощью Google</string>
+    <string name="email_entry">Войти в аккаунт с эл. почтой</string>
+    <string name="register_part1">Ещё нет аккаунта?</string>
+    <string name="register_part2">" Зарегистрироваться "</string>
+    <string name="privacy_part1">Регистрируясь, ты соглашаешься с\n</string>
+    <string name="privacy_part2">Условиями использования</string>
+    <string name="privacy_part3">" и\n"</string>
+    <string name="privacy_part4">Политикой конфиденциальности</string>
+
+
+    <string name="email_hint">example@example.com</string>
+    <string name="password">password</string>
+    <string name="confirm_password">confirm password</string>
+    <string name="username">username</string>
+    <string name="login_part1">Уже есть аккаунт?</string>
+    <string name="login_part2">" Войти "</string>
+
+
+
+
+
 </resources>
