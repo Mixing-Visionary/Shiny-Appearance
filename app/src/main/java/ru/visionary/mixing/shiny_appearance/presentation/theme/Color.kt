@@ -1,4 +1,4 @@
-package com.example.visionary_android.presentation.theme
+package ru.visionary.mixing.shiny_appearance.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

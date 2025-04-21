@@ -1,4 +1,5 @@
-package com.example.visionary_android
+package ru.visionary.mixing.shiny_appearance
+
 
 import android.os.Build
 import android.os.Bundle
@@ -7,17 +8,13 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
-import com.example.visionary_android.presentation.screen.LoginScreen
-import com.example.visionary_android.presentation.screen.RegistrationScreen
-import com.example.visionary_android.presentation.theme.VisionaryandroidTheme
+import ru.visionary.mixing.shiny_appearance.presentation.theme.ShinyAppearanceTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +34,7 @@ class MainActivity : ComponentActivity() {
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 )
         setContent {
-            VisionaryandroidTheme {
+            ShinyAppearanceTheme {
                 AppNavigation()
             }
         }
@@ -55,7 +52,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    VisionaryandroidTheme {
+    ShinyAppearanceTheme {
         Greeting("Android")
     }
 }

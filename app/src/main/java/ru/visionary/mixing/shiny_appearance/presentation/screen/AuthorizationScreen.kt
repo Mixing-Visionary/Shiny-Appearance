@@ -1,4 +1,4 @@
-package com.example.visionary_android.presentation.screen
+package ru.visionary.mixing.shiny_appearance.presentation.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -8,33 +8,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,26 +33,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.visionary_android.R
+import ru.visionary.mixing.shiny_appearance.R
 
 @Composable
-fun RegistrationScreen(navController: NavController) {
+fun AuthorizationScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -73,13 +61,13 @@ fun RegistrationScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 15.dp,start = 8.dp, end = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 15.dp, start = 8.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-        ){
+        ) {
             IconButton(
                 onClick = { navController.navigate("loginScreen") },
-                modifier = Modifier.size(50.dp) // Опционально: фиксированный размер
+                modifier = Modifier.size(50.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -90,8 +78,8 @@ fun RegistrationScreen(navController: NavController) {
                 )
             }
             IconButton(
-                onClick = { /* Ваш обработчик клика */ },
-                modifier = Modifier.size(50.dp) // Опционально: фиксированный размер
+                onClick = {  },
+                modifier = Modifier.size(50.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowForward,
@@ -102,7 +90,7 @@ fun RegistrationScreen(navController: NavController) {
             }
         }
         Image(
-            painter = painterResource(id = R.drawable.label),
+            painter = painterResource(id = R.drawable.visionary_label),
             modifier = Modifier
                 .width(200.dp)
                 .height(80.dp),
@@ -120,7 +108,7 @@ fun RegistrationScreen(navController: NavController) {
                 onValueChange = { email = it },
                 placeholder = {
                     Text(
-                        text = "example@example.com",
+                        text = (stringResource(R.string.email_hint)),
                         fontSize = 15.sp,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     )
@@ -148,41 +136,7 @@ fun RegistrationScreen(navController: NavController) {
                     .fillMaxWidth()
                     .padding(horizontal = 30.dp)
             )
-            var user by remember { mutableStateOf("") }
 
-            OutlinedTextField(
-                value = user,
-                onValueChange = { user = it },
-                placeholder = {  // Используем placeholder вместо label
-                    Text(
-                        text = "username",
-                        fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) // Полупрозрачный
-                    )
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.AccountCircle,
-                        contentDescription = "user",
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                },
-                shape = RoundedCornerShape(30.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.onTertiary,
-                    focusedContainerColor = MaterialTheme.colorScheme.onTertiary,
-                    disabledContainerColor = MaterialTheme.colorScheme.onTertiary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onTertiary,
-                    focusedBorderColor = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 30.dp, end = 30.dp, top = 8.dp)
-            )
 
             var password by remember { mutableStateOf("") }
             var passwordVisible by remember { mutableStateOf(false) }
@@ -190,11 +144,11 @@ fun RegistrationScreen(navController: NavController) {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = {  // Используем placeholder вместо label
+                placeholder = {
                     Text(
-                        text = "password",
+                        text = (stringResource(R.string.password)),
                         fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) // Полупрозрачный
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     )
                 },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -211,9 +165,12 @@ fun RegistrationScreen(navController: NavController) {
                         onClick = { passwordVisible = !passwordVisible }
                     ) {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Filled.Close else Icons.Filled.CheckCircle,
+                            painter = painterResource(
+                                id = if (passwordVisible) R.drawable.eye else R.drawable.eye
+                            ),
                             contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(6.dp)
                         )
                     }
                 },
@@ -230,60 +187,13 @@ fun RegistrationScreen(navController: NavController) {
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 30.dp, end = 30.dp, top = 8.dp)
-            )
-            var confirmpassword by remember { mutableStateOf("") }
-            var confirmpasswordVisible by remember { mutableStateOf(false) }
-            OutlinedTextField(
-                value = confirmpassword,
-                onValueChange = { confirmpassword = it },
-                placeholder = {  // Используем placeholder вместо label
-                    Text(
-                        text = "confirm password",
-                        fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) // Полупрозрачный
-                    )
-                },
-                visualTransformation = if (confirmpasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Lock,
-                        contentDescription = "lock",
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                },
-                trailingIcon = {
-                    IconButton(
-                        onClick = { confirmpasswordVisible = !confirmpasswordVisible }
-                    ) {
-                        Icon(
-                            imageVector = if (confirmpasswordVisible) Icons.Filled.Close else Icons.Filled.CheckCircle,
-                            contentDescription = if (confirmpasswordVisible) "Hide password" else "Show password",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                },
-                shape = RoundedCornerShape(30.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.onTertiary,
-                    focusedContainerColor = MaterialTheme.colorScheme.onTertiary,
-                    disabledContainerColor = MaterialTheme.colorScheme.onTertiary,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onTertiary,
-                    focusedBorderColor = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 30.dp, end = 30.dp, top = 8.dp, bottom = 50.dp)
+                    .padding(start = 30.dp, end = 30.dp, top = 8.dp, bottom = 75.dp)
             )
 
+
             val annotatedText = buildAnnotatedString {
-                // Не кликабельная часть 1
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                    append("Регистрируясь, ты соглашаешься с \n")
+                    append(stringResource(R.string.privacy_part1))
                 }
 
                 pushStringAnnotation(tag = "TERMS", annotation = "terms_click")
@@ -292,12 +202,12 @@ fun RegistrationScreen(navController: NavController) {
                         color = MaterialTheme.colorScheme.tertiary,
                     )
                 ) {
-                    append("Условиями использования ")
+                    append(stringResource(R.string.privacy_part2))
                 }
                 pop()
 
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                    append("и\n")
+                    append(stringResource(R.string.privacy_part3))
                 }
 
                 pushStringAnnotation(tag = "PRIVACY", annotation = "privacy_click")
@@ -306,7 +216,7 @@ fun RegistrationScreen(navController: NavController) {
                         color = MaterialTheme.colorScheme.tertiary,
                     )
                 ) {
-                    append("Политикой конфиденциальности")
+                    append(stringResource(R.string.privacy_part4))
                 }
                 pop()
             }
@@ -317,11 +227,11 @@ fun RegistrationScreen(navController: NavController) {
                         .firstOrNull()?.let { annotation ->
                             when (annotation.tag) {
                                 "TERMS" -> {
-                                    println("Открыть условия использования")
+
                                 }
 
                                 "PRIVACY" -> {
-                                    println("Открыть политику конфиденциальности")
+
                                 }
                             }
                         }
@@ -341,16 +251,15 @@ fun RegistrationScreen(navController: NavController) {
                 fontSize = 13.sp,
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                        append("Уже есть аккаунт?")
+                        append(stringResource(R.string.register_part1))
                     }
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.tertiary)) {
-                        append(" Войти ")
+                        append(stringResource(R.string.register_part2))
                     }
                 },
                 modifier = Modifier.padding(bottom = 50.dp).clickable {
-                    navController.navigate("authorizationScreen")
-                }
-            )
+                    navController.navigate("registrationScreen")
+                }            )
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.visionary_android.presentation.screen
+package ru.visionary.mixing.shiny_appearance.presentation.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -7,15 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,17 +27,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.visionary_android.R
+import ru.visionary.mixing.shiny_appearance.R
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -58,10 +55,10 @@ fun LoginScreen(navController: NavController) {
         }
         Text(
             textAlign = TextAlign.End,
-            fontSize = 13.sp,  // Размер текста в sp
+            fontSize = 13.sp,
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                    append("Пропустить")
+                    append(stringResource(R.string.skip))
                 }
             },
             modifier = Modifier
@@ -69,15 +66,15 @@ fun LoginScreen(navController: NavController) {
                 .fillMaxWidth()
         )
         Image(
-            painter = painterResource(id = R.drawable.label),
+            painter = painterResource(id = R.drawable.visionary_label),
             modifier = Modifier
                 .width(200.dp)
                 .height(80.dp),
-            contentDescription = null
+            contentDescription = "kk"
         )
 
         Button(
-            onClick = { /* Обработка нажатия */ },
+            onClick = {  },
             shape = RoundedCornerShape(30.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.onTertiary,
@@ -95,18 +92,17 @@ fun LoginScreen(navController: NavController) {
                 Image(
                     painter = painterResource(id = R.drawable.google),
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(35.dp)
+                    modifier = Modifier.padding(end = 5.dp)
                 )
                 Text(
-                    text = "Войти с помощью Google",
-                    fontSize = 13.sp,
+                    text = (stringResource(R.string.google_entry)),
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
         Button(
-            onClick = { navController.navigate("registrationScreen") },
+            onClick = { navController.navigate("authorizationScreen") },
             shape = RoundedCornerShape(30.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.onTertiary,
@@ -114,12 +110,11 @@ fun LoginScreen(navController: NavController) {
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, start = 30.dp, end = 30.dp)
+                .padding(top = 6.dp, start = 30.dp, end = 30.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(top = 7.dp, bottom = 7.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.MailOutline,
@@ -128,8 +123,8 @@ fun LoginScreen(navController: NavController) {
                     modifier = Modifier.padding(end = 5.dp)
                 )
                 Text(
-                    text = "Войти в аккаунт с эл. почтой",
-                    fontSize = 13.sp,
+                    text = (stringResource(R.string.email_entry)),
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -142,35 +137,31 @@ fun LoginScreen(navController: NavController) {
         )
         {
             val annotatedText = buildAnnotatedString {
-                // Не кликабельная часть 1
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                    append("Регистрируясь, ты соглашаешься с \n")
+                    append(stringResource(R.string.privacy_part1))
                 }
 
-                // Кликабельная часть 2 (Условия использования)
                 pushStringAnnotation(tag = "TERMS", annotation = "terms_click")
                 withStyle(
                     style = SpanStyle(
                         color = MaterialTheme.colorScheme.tertiary,
                     )
                 ) {
-                    append("Условиями использования ")
+                    append(stringResource(R.string.privacy_part2))
                 }
                 pop()
 
-                // Не кликабельная часть 3
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                    append("и\n")
+                    append(stringResource(R.string.privacy_part3))
                 }
 
-                // Кликабельная часть 4 (Политика конфиденциальности)
                 pushStringAnnotation(tag = "PRIVACY", annotation = "privacy_click")
                 withStyle(
                     style = SpanStyle(
                         color = MaterialTheme.colorScheme.tertiary,
                     )
                 ) {
-                    append("Политикой конфиденциальности")
+                    append(stringResource(R.string.privacy_part4))
                 }
                 pop()
             }
@@ -181,13 +172,11 @@ fun LoginScreen(navController: NavController) {
                         .firstOrNull()?.let { annotation ->
                             when (annotation.tag) {
                                 "TERMS" -> {
-                                    // Обработка клика по условиям использования
-                                    println("Открыть условия использования")
+
                                 }
 
                                 "PRIVACY" -> {
-                                    // Обработка клика по политике конфиденциальности
-                                    println("Открыть политику конфиденциальности")
+
                                 }
                             }
                         }
@@ -204,13 +193,13 @@ fun LoginScreen(navController: NavController) {
             Text(
 
                 textAlign = TextAlign.Center,
-                fontSize = 13.sp,  // Размер текста в sp
+                fontSize = 13.sp,
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                        append("Ещё нет аккаунта?")
+                        append(stringResource(R.string.register_part1))
                     }
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.tertiary)) {
-                        append(" Зарегестрироваться ")
+                        append(stringResource(R.string.register_part2))
                     }
                 },
                 modifier = Modifier.padding(bottom = 50.dp)

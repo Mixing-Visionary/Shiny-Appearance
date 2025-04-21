@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.visionary_android"
+    namespace = "ru.visionary.mixing.shiny_appearance"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.visionary_android"
+        applicationId = "ru.visionary.mixing.shiny_appearance"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -41,7 +41,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.12"
     }
     packaging {
         resources {

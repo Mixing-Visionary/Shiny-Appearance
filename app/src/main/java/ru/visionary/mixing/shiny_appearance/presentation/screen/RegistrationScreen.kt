@@ -1,5 +1,4 @@
-package com.example.visionary_android.presentation.screen
-
+package ru.visionary.mixing.shiny_appearance.presentation.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -19,8 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material3.Icon
@@ -39,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -50,10 +48,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.visionary_android.R
+import ru.visionary.mixing.shiny_appearance.R
 
 @Composable
-fun AuthorizationScreen(navController: NavController) {
+fun RegistrationScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,13 +62,13 @@ fun AuthorizationScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 15.dp, start = 8.dp, end = 8.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 15.dp,start = 8.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
+        ){
             IconButton(
                 onClick = { navController.navigate("loginScreen") },
-                modifier = Modifier.size(50.dp) // Опционально: фиксированный размер
+                modifier = Modifier.size(50.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -81,8 +79,8 @@ fun AuthorizationScreen(navController: NavController) {
                 )
             }
             IconButton(
-                onClick = { /* Ваш обработчик клика */ },
-                modifier = Modifier.size(50.dp) // Опционально: фиксированный размер
+                onClick = { },
+                modifier = Modifier.size(50.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowForward,
@@ -93,7 +91,7 @@ fun AuthorizationScreen(navController: NavController) {
             }
         }
         Image(
-            painter = painterResource(id = R.drawable.label),
+            painter = painterResource(id = R.drawable.visionary_label),
             modifier = Modifier
                 .width(200.dp)
                 .height(80.dp),
@@ -111,12 +109,12 @@ fun AuthorizationScreen(navController: NavController) {
                 onValueChange = { email = it },
                 placeholder = {
                     Text(
-                        text = "example@example.com",
+                        text = (stringResource(R.string.email_hint)),
                         fontSize = 15.sp,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     )
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.MailOutline,
@@ -139,7 +137,41 @@ fun AuthorizationScreen(navController: NavController) {
                     .fillMaxWidth()
                     .padding(horizontal = 30.dp)
             )
+            var user by remember { mutableStateOf("") }
 
+            OutlinedTextField(
+                value = user,
+                onValueChange = { user = it },
+                placeholder = {
+                    Text(
+                        text = (stringResource(R.string.username)),
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                    )
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "user",
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                },
+                shape = RoundedCornerShape(30.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.onTertiary,
+                    focusedContainerColor = MaterialTheme.colorScheme.onTertiary,
+                    disabledContainerColor = MaterialTheme.colorScheme.onTertiary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onTertiary,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp, end = 30.dp, top = 8.dp)
+            )
 
             var password by remember { mutableStateOf("") }
             var passwordVisible by remember { mutableStateOf(false) }
@@ -147,11 +179,11 @@ fun AuthorizationScreen(navController: NavController) {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = {  // Используем placeholder вместо label
+                placeholder = {
                     Text(
-                        text = "password",
+                        text = (stringResource(R.string.password)),
                         fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) // Полупрозрачный
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     )
                 },
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -168,9 +200,12 @@ fun AuthorizationScreen(navController: NavController) {
                         onClick = { passwordVisible = !passwordVisible }
                     ) {
                         Icon(
-                            imageVector = if (passwordVisible) Icons.Filled.Close else Icons.Filled.CheckCircle,
+                            painter = painterResource(
+                                id = if (passwordVisible) R.drawable.eye else R.drawable.eye
+                            ),
                             contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(6.dp)
                         )
                     }
                 },
@@ -187,14 +222,62 @@ fun AuthorizationScreen(navController: NavController) {
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 30.dp, end = 30.dp, top = 8.dp, bottom = 75.dp)
+                    .padding(start = 30.dp, end = 30.dp, top = 8.dp)
+            )
+            var confirmpassword by remember { mutableStateOf("") }
+            var confirmpasswordVisible by remember { mutableStateOf(false) }
+            OutlinedTextField(
+                value = confirmpassword,
+                onValueChange = { confirmpassword = it },
+                placeholder = {
+                    Text(
+                        text = (stringResource(R.string.confirm_password)),
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                    )
+                },
+                visualTransformation = if (confirmpasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = "lock",
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                },
+                trailingIcon = {
+                    IconButton(
+                        onClick = { confirmpasswordVisible = !confirmpasswordVisible }
+                    ) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (confirmpasswordVisible) R.drawable.eye else R.drawable.eye
+                            ),
+                            contentDescription = if (confirmpasswordVisible) "Hide password" else "Show password",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                    }
+                },
+                shape = RoundedCornerShape(30.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.onTertiary,
+                    focusedContainerColor = MaterialTheme.colorScheme.onTertiary,
+                    disabledContainerColor = MaterialTheme.colorScheme.onTertiary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onTertiary,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp, end = 30.dp, top = 8.dp, bottom = 50.dp)
             )
 
-
             val annotatedText = buildAnnotatedString {
-                // Не кликабельная часть 1
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                    append("Регистрируясь, ты соглашаешься с \n")
+                    append(stringResource(R.string.privacy_part1))
                 }
 
                 pushStringAnnotation(tag = "TERMS", annotation = "terms_click")
@@ -203,12 +286,12 @@ fun AuthorizationScreen(navController: NavController) {
                         color = MaterialTheme.colorScheme.tertiary,
                     )
                 ) {
-                    append("Условиями использования ")
+                    append(stringResource(R.string.privacy_part2))
                 }
                 pop()
 
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                    append("и\n")
+                    append(stringResource(R.string.privacy_part3))
                 }
 
                 pushStringAnnotation(tag = "PRIVACY", annotation = "privacy_click")
@@ -217,7 +300,7 @@ fun AuthorizationScreen(navController: NavController) {
                         color = MaterialTheme.colorScheme.tertiary,
                     )
                 ) {
-                    append("Политикой конфиденциальности")
+                    append(stringResource(R.string.privacy_part4))
                 }
                 pop()
             }
@@ -228,11 +311,11 @@ fun AuthorizationScreen(navController: NavController) {
                         .firstOrNull()?.let { annotation ->
                             when (annotation.tag) {
                                 "TERMS" -> {
-                                    println("Открыть условия использования")
+
                                 }
 
                                 "PRIVACY" -> {
-                                    println("Открыть политику конфиденциальности")
+
                                 }
                             }
                         }
@@ -252,15 +335,16 @@ fun AuthorizationScreen(navController: NavController) {
                 fontSize = 13.sp,
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                        append("Ещё нет аккаунта?")
+                        append(stringResource(R.string.login_part1))
                     }
                     withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.tertiary)) {
-                        append(" Зарегестрироваться ")
+                        append(stringResource(R.string.login_part2))
                     }
                 },
                 modifier = Modifier.padding(bottom = 50.dp).clickable {
-                    navController.navigate("registrationScreen")
-                }            )
+                    navController.navigate("authorizationScreen")
+                }
+            )
         }
     }
 }
