@@ -166,7 +166,7 @@ fun AuthorizationScreen(navController: NavController) {
                     ) {
                         Icon(
                             painter = painterResource(
-                                id = if (passwordVisible) R.drawable.eye else R.drawable.eye
+                                id = if (passwordVisible) R.drawable.closed_eye else R.drawable.eye
                             ),
                             contentDescription = if (passwordVisible) "Hide password" else "Show password",
                             tint = MaterialTheme.colorScheme.primary,
