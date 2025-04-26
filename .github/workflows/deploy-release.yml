@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > keystore.jks
           echo "$KEYSTORE_BASE64" | base64 -d > app/keystore.jks
-          chmod app/keystore.jks
+          chmod 600 keystore.jks
           chmod 600 app/keystore.jks
 
           chmod +x gradlew
