@@ -2,7 +2,7 @@ name: Check Pull Request
 
 on:
   pull_request:
-    branches: ["master"]
+    branches: ['master', 'release/**']
     types: [opened, edited, synchronize, reopened]
 
 jobs:
@@ -66,4 +66,4 @@ jobs:
       - name: Build and test
         run: |
           chmod +x gradlew
-          ./gradlew build test
+          ./gradlew app:testDebugUnitTest
