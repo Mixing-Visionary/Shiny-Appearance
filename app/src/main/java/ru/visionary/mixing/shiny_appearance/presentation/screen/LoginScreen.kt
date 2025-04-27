@@ -1,6 +1,7 @@
 package ru.visionary.mixing.shiny_appearance.presentation.screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -53,18 +54,19 @@ fun LoginScreen(navController: NavController) {
         var login = remember {
             mutableStateOf("")
         }
-        Text(
-            textAlign = TextAlign.End,
-            fontSize = 13.sp,
-            text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
-                    append(stringResource(R.string.skip))
-                }
-            },
-            modifier = Modifier
-                .padding(top = 25.dp, bottom = 25.dp, end = 10.dp)
-                .fillMaxWidth()
-        )
+        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+            Text(
+                fontSize = 13.sp,
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
+                        append(stringResource(R.string.skip))
+                    }
+                },
+                modifier = Modifier
+                    .padding(top = 25.dp, bottom = 25.dp, end = 10.dp)
+                    .clickable { navController.navigate("mainTabsScreen") }
+            )
+        }
         Image(
             painter = painterResource(id = R.drawable.visionary_label),
             modifier = Modifier
@@ -74,7 +76,7 @@ fun LoginScreen(navController: NavController) {
         )
 
         Button(
-            onClick = {  },
+            onClick = { },
             shape = RoundedCornerShape(30.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.onTertiary,
