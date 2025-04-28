@@ -9,12 +9,16 @@ import ru.visionary.mixing.shiny_appearance.presentation.screen.AuthorizationScr
 import ru.visionary.mixing.shiny_appearance.presentation.screen.LoginScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.MainTabScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.RegistrationScreen
+import ru.visionary.mixing.shiny_appearance.presentation.screen.SplashScreen
 
 @Composable
-fun AppNavigation(){
+fun AppNavigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "loginScreen") {
+    NavHost(navController = navController, startDestination = "splash_screen") {
 
+        composable("splash_screen") {
+            SplashScreen(navController)
+        }
         composable("loginScreen") {
             LoginScreen(navController)
         }
