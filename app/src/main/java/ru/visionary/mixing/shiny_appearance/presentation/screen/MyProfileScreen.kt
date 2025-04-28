@@ -77,7 +77,9 @@ fun MyProfileScreen(navController: NavController, role: String) {
     }// временная заглушка
     var textNik by remember { mutableStateOf("@JustiSablea") } // временная заглушка
 
-
+    val maxLines = 5
+    val maxCharsDesc = 255
+    val maxCharsNik = 25
     Column(modifier = Modifier
         .fillMaxSize()
         .clickable(
@@ -106,9 +108,14 @@ fun MyProfileScreen(navController: NavController, role: String) {
                         textStyle = TextStyle(
                             fontSize = 14.sp,
                             textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         ),
-                        onValueChange = { newText -> textNik = newText },
+                        singleLine = true,
+                        onValueChange = { newText ->
+                            if (newText.length <= maxCharsNik) {
+                                textNik = newText
+                            }
+                        },
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
@@ -179,7 +186,12 @@ fun MyProfileScreen(navController: NavController, role: String) {
                             textStyle = TextStyle(
                                 fontSize = 13.sp,
                             ),
-                            onValueChange = { newText -> textDescription = newText },
+                            onValueChange = { newText ->
+                                val lines = newText.lines()
+                                if (lines.size <= maxLines && newText.length <= maxCharsDesc) {
+                                    textDescription = newText
+                                }
+                            },
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
                                 unfocusedContainerColor = Color.Transparent,

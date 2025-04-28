@@ -47,5 +47,8 @@
     <string name="premium_part4">"\n🎁 Сэкономь до 889 ₽ при покупке подписки на год!\n"</string>
     <string name="premium_part5">"Premium: 4499 ₽ вместо 5388 ₽ при оплате помесячно"</string>
 
+    <string name="take_photo">"Сделать фото"</string>
+    <string name="choose_photo">"Выбрать из галереи"</string>
+
 
 </resources>
