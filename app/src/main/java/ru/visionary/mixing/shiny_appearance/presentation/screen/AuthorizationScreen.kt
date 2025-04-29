@@ -78,7 +78,7 @@ fun AuthorizationScreen(navController: NavController) {
                 )
             }
             IconButton(
-                onClick = {  },
+                onClick = { navController.navigate("mainTabsScreen") },
                 modifier = Modifier.size(50.dp)
             ) {
                 Icon(

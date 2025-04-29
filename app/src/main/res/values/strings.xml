@@ -18,6 +18,10 @@
     <string name="login_part1">Уже есть аккаунт?</string>
     <string name="login_part2">" Войти "</string>
 
+    <string name="users_description">"Описание пользователя"</string>
+    <string name="publications">"Публикации"</string>
+    <string name="personal">"Личное"</string>
+
 
 
 
