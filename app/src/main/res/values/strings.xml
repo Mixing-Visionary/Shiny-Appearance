@@ -56,5 +56,7 @@
     <string name="to_publish">"Опубликовать"</string>
     <string name="to_personal">"В личное"</string>
 
+    <string name="comment">"Оставьте свой комментарий:"</string>
+
 
 </resources>

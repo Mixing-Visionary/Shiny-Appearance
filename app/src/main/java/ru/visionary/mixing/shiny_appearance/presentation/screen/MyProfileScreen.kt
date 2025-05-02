@@ -57,7 +57,11 @@ import ru.visionary.mixing.shiny_appearance.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyProfileScreen(navController: NavController, role: String) {
+fun MyProfileScreen(
+    parentNavController: NavController,
+    innerNavController: NavController,
+    role: String
+) {
 
     val gridState = rememberLazyGridState()
     val isATop = gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
@@ -275,15 +279,15 @@ fun MyProfileScreen(navController: NavController, role: String) {
 
             )
         if (selectedButton == 0) {
-            listOfPosts(listPublications, gridState)
+            listOfPosts(listPublications, gridState, innerNavController)
         } else {
-            listOfPosts(listPersonalPosts, gridState)
+            listOfPosts(listPersonalPosts, gridState, innerNavController)
         }
     }
 }
 
 @Composable
-fun listOfPosts(list: List<Int>, gridState: LazyGridState) {
+fun listOfPosts(list: List<Int>, gridState: LazyGridState, innerNavController: NavController) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = Modifier
@@ -302,6 +306,7 @@ fun listOfPosts(list: List<Int>, gridState: LazyGridState) {
                     .height(170.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.surface)
+                    .clickable { innerNavController.navigate("myPost")}
             )
         }
     }

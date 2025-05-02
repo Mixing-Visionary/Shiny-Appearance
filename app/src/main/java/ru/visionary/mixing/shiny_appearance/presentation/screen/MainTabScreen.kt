@@ -29,10 +29,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import ru.visionary.mixing.shiny_appearance.R
 
 @Composable
 fun MainTabScreen(navController: NavController, index: Int, role: String) {
+    val innerNavController = rememberNavController()
     val tabs = listOf(
         R.drawable.home,
         R.drawable.add,
@@ -92,7 +96,18 @@ fun MainTabScreen(navController: NavController, index: Int, role: String) {
                 when (selectedTabIndex) {
                     0 -> MainScreen(navController, role)
                     1 -> CreatePicture(navController, role)
-                    2 -> MyProfileScreen(navController, role)
+                    2 -> NavHost(navController = innerNavController, startDestination = "profile") {
+                        composable("profile") {
+                            MyProfileScreen(
+                                parentNavController = navController,
+                                innerNavController = innerNavController,
+                                role = role
+                            )
+                        }
+                        composable("myPost") {
+                            MyPostScreen(innerNavController)
+                        }
+                    }
                     3 -> SettingsScreen(navController, role)
                 }
             }
