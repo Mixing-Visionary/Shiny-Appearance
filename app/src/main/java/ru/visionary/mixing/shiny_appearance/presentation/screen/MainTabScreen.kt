@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -24,13 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import ru.visionary.mixing.shiny_appearance.R
 
 @Composable
-fun MainTabScreen(navController: NavController, role: String) {
+fun MainTabScreen(navController: NavController, index: Int, role: String) {
     val tabs = listOf(
         R.drawable.home,
         R.drawable.add,
@@ -38,7 +40,7 @@ fun MainTabScreen(navController: NavController, role: String) {
         R.drawable.settings,
     )
     val tabDescriptions = listOf("Лента", "Создание картинки", "Профиль", "Настройки")
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableStateOf(index) }
 
     Scaffold() {
         Column(
@@ -101,7 +103,7 @@ fun MainTabScreen(navController: NavController, role: String) {
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onTertiary,
                 selectedTabIndex = selectedTabIndex,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             ) {
                 tabs.forEachIndexed { index, icon ->
                     Tab(

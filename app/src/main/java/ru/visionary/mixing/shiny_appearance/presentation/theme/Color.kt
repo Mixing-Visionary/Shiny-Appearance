@@ -3,9 +3,10 @@ package ru.visionary.mixing.shiny_appearance.presentation.theme
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFF8A4B68)
-val PurpleGrey80 = Color(0xFFBDB1B7)
+val PurpleGrey80 = Color(0xFFD0B7C3)
 val Pink80 = Color(0xFFBDB1B7)
 val Black = Color(0xFF000000)
+val White = Color(0xFFFFFFFF)
 
 val Purple40 = Color(0xFF8A4B68)
 val PurpleGrey40 = Color(0xFFA67E91)

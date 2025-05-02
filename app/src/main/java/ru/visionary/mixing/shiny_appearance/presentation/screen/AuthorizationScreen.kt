@@ -71,7 +71,7 @@ fun AuthorizationScreen(navController: NavController) {
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Лайк",
+                    contentDescription = "Назад",
                     tint = MaterialTheme.colorScheme.onTertiary,
                     modifier = Modifier.size(50.dp)
 
@@ -83,7 +83,7 @@ fun AuthorizationScreen(navController: NavController) {
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowForward,
-                    contentDescription = "Лайк",
+                    contentDescription = "Вперёд",
                     tint = MaterialTheme.colorScheme.onTertiary,
                     modifier = Modifier.size(50.dp)
                 )
