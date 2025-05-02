@@ -50,5 +50,11 @@
     <string name="take_photo">"Сделать фото"</string>
     <string name="choose_photo">"Выбрать из галереи"</string>
 
+    <string name="choose_style">"Выберите стиль обработки фотографии"</string>
+
+    <string name="share_picture">"Отправить изображение через..."</string>
+    <string name="to_publish">"Опубликовать"</string>
+    <string name="to_personal">"В личное"</string>
+
 
 </resources>

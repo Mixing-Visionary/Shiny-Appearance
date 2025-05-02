@@ -51,14 +51,16 @@ fun CreatePicture(navController: NavController, role: String) {
     val pickImageLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        selectedImageUri = uri
+        if (uri != null) {
+            navController.navigate("photoNeuralProcessingScreen?uri=$uri")
+        }
     }
 
     val takePictureLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && cameraImageUri != null) {
-            selectedImageUri = cameraImageUri
+            navController.navigate("photoNeuralProcessingScreen?uri=$cameraImageUri")
         }
     }
 
@@ -154,15 +156,6 @@ fun CreatePicture(navController: NavController, role: String) {
                     )
                 }
             }
-            selectedImageUri?.let { uri ->
-                Image(
-                    painter = rememberAsyncImagePainter(uri),
-                    contentDescription = "Selected Image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(200.dp)
-                )
-            }// Это изображение потом будет передаваться на экран обработки изображений, пока просто для наглядности выводим
         }
     }
 }
