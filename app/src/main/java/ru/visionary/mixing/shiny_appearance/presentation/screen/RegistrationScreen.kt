@@ -2,6 +2,7 @@ package ru.visionary.mixing.shiny_appearance.presentation.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,7 +35,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -47,25 +52,51 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import ru.visionary.mixing.shiny_appearance.R
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.RegistrationViewModel
 
 @Composable
-fun RegistrationScreen(navController: NavController) {
+fun RegistrationScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = hiltViewModel(),
+    registrationViewModel: RegistrationViewModel = hiltViewModel()
+) {
+    var email by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmpassword by remember { mutableStateOf("") }
+    var confirmpasswordVisible by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .paint(
                 painterResource(id = R.drawable.registrationscreen),
                 contentScale = ContentScale.Crop
-            ),
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                focusManager.clearFocus()
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 15.dp,start = 8.dp, end = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 15.dp, start = 8.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-        ){
+        ) {
             IconButton(
                 onClick = { navController.navigate("loginScreen") },
                 modifier = Modifier.size(50.dp)
@@ -79,7 +110,17 @@ fun RegistrationScreen(navController: NavController) {
                 )
             }
             IconButton(
-                onClick = { navController.navigate("mainTabsScreen")},
+                onClick = {
+                    if (registrationViewModel.validateCredentials(
+                            username,
+                            password,
+                            confirmpassword
+                        )
+                    ) {
+                        authViewModel.register(username, email, password)
+                        navController.navigate("authorizationScreen")
+                    } else showError = true
+                },
                 modifier = Modifier.size(50.dp)
             ) {
                 Icon(
@@ -97,7 +138,6 @@ fun RegistrationScreen(navController: NavController) {
                 .height(80.dp),
             contentDescription = null
         )
-        var email by remember { mutableStateOf("") }
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -136,12 +176,18 @@ fun RegistrationScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 30.dp)
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+
+                    }
             )
-            var user by remember { mutableStateOf("") }
 
             OutlinedTextField(
-                value = user,
-                onValueChange = { user = it },
+                value = username,
+                onValueChange = { username = it },
                 placeholder = {
                     Text(
                         text = (stringResource(R.string.username)),
@@ -171,17 +217,21 @@ fun RegistrationScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 30.dp, end = 30.dp, top = 8.dp)
-            )
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
 
-            var password by remember { mutableStateOf("") }
-            var passwordVisible by remember { mutableStateOf(false) }
+                    }
+            )
 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 placeholder = {
                     Text(
-                        text = (stringResource(R.string.password)),
+                        text = (stringResource(R.string.password_registr)),
                         fontSize = 15.sp,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     )
@@ -223,9 +273,16 @@ fun RegistrationScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 30.dp, end = 30.dp, top = 8.dp)
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+
+                    }
             )
-            var confirmpassword by remember { mutableStateOf("") }
-            var confirmpasswordVisible by remember { mutableStateOf(false) }
+
+
             OutlinedTextField(
                 value = confirmpassword,
                 onValueChange = { confirmpassword = it },
@@ -272,7 +329,19 @@ fun RegistrationScreen(navController: NavController) {
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 30.dp, end = 30.dp, top = 8.dp, bottom = 50.dp)
+                    .padding(start = 30.dp, end = 30.dp, top = 8.dp, bottom = 10.dp)
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+
+                    }
+            )
+            Text(
+                text = stringResource(id = R.string.registration_error), color = if (showError) {
+                    Color.Red
+                } else Color.Transparent, modifier = Modifier.padding(bottom = 30.dp)
             )
 
             val annotatedText = buildAnnotatedString {
@@ -341,9 +410,11 @@ fun RegistrationScreen(navController: NavController) {
                         append(stringResource(R.string.login_part2))
                     }
                 },
-                modifier = Modifier.padding(bottom = 50.dp).clickable {
-                    navController.navigate("authorizationScreen")
-                }
+                modifier = Modifier
+                    .padding(bottom = 50.dp)
+                    .clickable {
+                        navController.navigate("authorizationScreen")
+                    }
             )
         }
     }

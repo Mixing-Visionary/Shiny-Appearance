@@ -2,6 +2,7 @@ package ru.visionary.mixing.shiny_appearance.presentation.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -46,22 +51,45 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import ru.visionary.mixing.shiny_appearance.R
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 
 @Composable
-fun AuthorizationScreen(navController: NavController) {
+fun AuthorizationScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = hiltViewModel()
+) {
+
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+
+    var showError by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .paint(
                 painterResource(id = R.drawable.registrationscreen),
                 contentScale = ContentScale.Crop
-            ),
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                focusManager.clearFocus()
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 15.dp, start = 8.dp, end = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 15.dp, start = 8.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -78,7 +106,11 @@ fun AuthorizationScreen(navController: NavController) {
                 )
             }
             IconButton(
-                onClick = { navController.navigate("mainTabsScreen") },
+                onClick = {
+                    if (!authViewModel.login(email, password)) {
+                        showError = true
+                    }
+                },
                 modifier = Modifier.size(50.dp)
             ) {
                 Icon(
@@ -96,8 +128,6 @@ fun AuthorizationScreen(navController: NavController) {
                 .height(80.dp),
             contentDescription = null
         )
-        var email by remember { mutableStateOf("") }
-
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom,
@@ -135,11 +165,15 @@ fun AuthorizationScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 30.dp)
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+
+                    }
             )
 
-
-            var password by remember { mutableStateOf("") }
-            var passwordVisible by remember { mutableStateOf(false) }
 
             OutlinedTextField(
                 value = password,
@@ -187,9 +221,22 @@ fun AuthorizationScreen(navController: NavController) {
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 30.dp, end = 30.dp, top = 8.dp, bottom = 75.dp)
+                    .padding(start = 30.dp, end = 30.dp, top = 8.dp, bottom = 10.dp)
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+
+                    }
+
             )
 
+            Text(
+                text = stringResource(id = R.string.authorization_error), color = if (showError) {
+                    Color.Red
+                } else Color.Transparent, modifier = Modifier.padding(bottom = 50.dp)
+            )
 
             val annotatedText = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onTertiary)) {
@@ -257,9 +304,11 @@ fun AuthorizationScreen(navController: NavController) {
                         append(stringResource(R.string.register_part2))
                     }
                 },
-                modifier = Modifier.padding(bottom = 50.dp).clickable {
-                    navController.navigate("registrationScreen")
-                }            )
+                modifier = Modifier
+                    .padding(bottom = 50.dp)
+                    .clickable {
+                        navController.navigate("registrationScreen")
+                    })
         }
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,14 +29,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ru.visionary.mixing.shiny_appearance.R
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 
 @Composable
-fun MainTabScreen(navController: NavController, index: Int, role: String) {
+fun MainTabScreen(
+    navController: NavController,
+    index: Int,
+    authViewModel: AuthViewModel = hiltViewModel()
+) {
+    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
     val innerNavController = rememberNavController()
     val tabs = listOf(
         R.drawable.home,
@@ -93,22 +101,34 @@ fun MainTabScreen(navController: NavController, index: Int, role: String) {
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                when (selectedTabIndex) {
-                    0 -> MainScreen(navController, role)
-                    1 -> CreatePicture(navController, role)
-                    2 -> NavHost(navController = innerNavController, startDestination = "profile") {
-                        composable("profile") {
-                            MyProfileScreen(
-                                parentNavController = navController,
-                                innerNavController = innerNavController,
-                                role = role
-                            )
+                if (isLoggedIn) {
+                    when (selectedTabIndex) {
+                        0 -> MainScreen(navController)
+                        1 -> CreatePicture(navController)
+                        2 -> NavHost(
+                            navController = innerNavController,
+                            startDestination = "profile"
+                        ) {
+                            composable("profile") {
+                                MyProfileScreen(
+                                    parentNavController = navController,
+                                    innerNavController = innerNavController
+                                )
+                            }
+                            composable("myPost") {
+                                MyPostScreen(innerNavController)
+                            }
                         }
-                        composable("myPost") {
-                            MyPostScreen(innerNavController)
-                        }
+
+                        3 -> SettingsScreen(navController)
                     }
-                    3 -> SettingsScreen(navController, role)
+                } else {
+                    when (selectedTabIndex) {
+                        0 -> MainScreen(navController)
+                        1 -> UnauthCreatePicture(navController)
+                        2 -> UnauthProfileScreen(navController)
+                        3 -> UnauthSettingsScreen(navController)
+                    }
                 }
             }
 
@@ -118,7 +138,9 @@ fun MainTabScreen(navController: NavController, index: Int, role: String) {
                 containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onTertiary,
                 selectedTabIndex = selectedTabIndex,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             ) {
                 tabs.forEachIndexed { index, icon ->
                     Tab(
