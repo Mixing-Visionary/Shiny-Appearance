@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -204,7 +203,11 @@ fun LoginScreen(navController: NavController) {
                         append(stringResource(R.string.register_part2))
                     }
                 },
-                modifier = Modifier.padding(bottom = 50.dp)
+                modifier = Modifier
+                    .padding(bottom = 50.dp)
+                    .clickable {
+                        navController.navigate("registrationScreen")
+                    }
             )
         }
     }

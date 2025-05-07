@@ -12,11 +12,14 @@
 
 
     <string name="email_hint">example@example.com</string>
+    <string name="password_registr">password [>=8]</string>
     <string name="password">password</string>
     <string name="confirm_password">confirm password</string>
-    <string name="username">username</string>
+    <string name="username">username [4..25]</string>
     <string name="login_part1">Уже есть аккаунт?</string>
     <string name="login_part2">" Войти "</string>
+    <string name="registration_error">"Некорректные данные для регистрации"</string>
+    <string name="authorization_error">"Неверный пароль или почта"</string>
 
     <string name="users_description">"Описание пользователя"</string>
     <string name="publications">"Публикации"</string>
@@ -57,6 +60,9 @@
     <string name="to_personal">"В личное"</string>
 
     <string name="comment">"Оставьте свой комментарий:"</string>
+    <string name="unauth_create_picture">"Авторизируйтесь, чтобы создавать работы с помощью нашей нейросети"</string>
+    <string name="unauth_profile">"Авторизируйтесь, чтобы зайти в свой профиль"</string>
+    <string name="enter_to_account">"Войти в аккаунт"</string>
 
 
 </resources>

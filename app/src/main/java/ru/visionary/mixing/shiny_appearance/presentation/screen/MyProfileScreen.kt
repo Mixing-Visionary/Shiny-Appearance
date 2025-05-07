@@ -59,8 +59,7 @@ import ru.visionary.mixing.shiny_appearance.R
 @Composable
 fun MyProfileScreen(
     parentNavController: NavController,
-    innerNavController: NavController,
-    role: String
+    innerNavController: NavController
 ) {
 
     val gridState = rememberLazyGridState()

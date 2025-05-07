@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
-import coil3.compose.rememberAsyncImagePainter
 import ru.visionary.mixing.shiny_appearance.R
 import java.io.File
 import java.text.SimpleDateFormat
@@ -42,7 +39,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun CreatePicture(navController: NavController, role: String) {
+fun CreatePicture(navController: NavController) {
     val context = LocalContext.current
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }

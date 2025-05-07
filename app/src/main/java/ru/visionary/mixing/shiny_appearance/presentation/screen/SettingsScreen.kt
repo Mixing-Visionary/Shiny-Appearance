@@ -48,12 +48,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.presentation.components.SettingsItem
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 
 @Composable
-fun SettingsScreen(navController: NavController, role: String) {
+fun SettingsScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = hiltViewModel()
+) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     var newpassword by remember { mutableStateOf("") }
@@ -70,7 +75,8 @@ fun SettingsScreen(navController: NavController, role: String) {
             fontWeight = FontWeight.Bold
         )
     }
-    Column(horizontalAlignment = Alignment.Start, modifier = Modifier.padding(top = 30.dp)
+    Column(horizontalAlignment = Alignment.Start, modifier = Modifier
+        .padding(top = 30.dp)
         .fillMaxSize()
         .clickable(
             interactionSource = remember { MutableInteractionSource() },
@@ -90,7 +96,7 @@ fun SettingsScreen(navController: NavController, role: String) {
             text = stringResource(id = R.string.pro), icon = null,
             onClick = { proDialog = true })
         SettingsItem(
-            text = stringResource(id = R.string.premium),icon = null,
+            text = stringResource(id = R.string.premium), icon = null,
             onClick = { premiumDialog = true })
 
         Text(
@@ -109,7 +115,7 @@ fun SettingsScreen(navController: NavController, role: String) {
             modifier = Modifier.padding(start = 25.dp, top = 10.dp)
         )
         SettingsItem(
-            text = stringResource(id = R.string.change_password),icon = null,
+            text = stringResource(id = R.string.change_password), icon = null,
             onClick = { isVisibleChangePass = true })
         if (isVisibleChangePass) {
             Row(modifier = Modifier.padding(start = 15.dp, end = 15.dp, top = 10.dp)) {
@@ -167,7 +173,9 @@ fun SettingsScreen(navController: NavController, role: String) {
                             painter = painterResource(id = R.drawable.check),
                             contentDescription = "check",
                             tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.clickable { isVisibleChangePass = false }//временная логика
+                            modifier = Modifier.clickable {
+                                isVisibleChangePass = false
+                            }//временная логика
                         )
                     }
                 }
@@ -176,7 +184,10 @@ fun SettingsScreen(navController: NavController, role: String) {
         SettingsItem(
             text = stringResource(id = R.string.logout),
             icon = R.drawable.logout,
-            onClick = {})
+            onClick = {
+                authViewModel.logout()
+                navController.navigate("loginScreen")
+            })
         SettingsItem(
             text = stringResource(id = R.string.delete_account),
             icon = R.drawable.delete,
@@ -188,7 +199,7 @@ fun SettingsScreen(navController: NavController, role: String) {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 25.dp, top = 10.dp)
         )
-        SettingsItem(text = stringResource(id = R.string.change_theme),icon = null, onClick = {})
+        SettingsItem(text = stringResource(id = R.string.change_theme), icon = null, onClick = {})
 
     }
     if (proDialog) {
@@ -216,7 +227,10 @@ fun CustomProDialog(onDismiss: () -> Unit) {
                     .padding(16.dp)
             ) {
                 Column(horizontalAlignment = Alignment.Start) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             textAlign = TextAlign.Center,
                             text = stringResource(id = R.string.pro_part1),
@@ -268,7 +282,8 @@ fun CustomProDialog(onDismiss: () -> Unit) {
                                     shape = RoundedCornerShape(48.dp)
                                 )
                                 .fillMaxWidth()
-                                .height(48.dp).border(
+                                .height(48.dp)
+                                .border(
                                     width = 1.dp,
                                     color = MaterialTheme.colorScheme.primary,
                                     shape = RoundedCornerShape(48.dp)
@@ -321,7 +336,10 @@ fun CustomPremiumDialog(onDismiss: () -> Unit) {
                     .padding(16.dp)
             ) {
                 Column(horizontalAlignment = Alignment.Start) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             textAlign = TextAlign.Center,
                             text = stringResource(id = R.string.premium_part1),
@@ -373,7 +391,8 @@ fun CustomPremiumDialog(onDismiss: () -> Unit) {
                                     shape = RoundedCornerShape(48.dp)
                                 )
                                 .fillMaxWidth()
-                                .height(48.dp).border(
+                                .height(48.dp)
+                                .border(
                                     width = 1.dp,
                                     color = MaterialTheme.colorScheme.primary,
                                     shape = RoundedCornerShape(48.dp)

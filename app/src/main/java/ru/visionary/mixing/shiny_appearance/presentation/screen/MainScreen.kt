@@ -4,6 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 @Composable
-fun MainScreen(navController: NavController, role: String) {
+fun MainScreen(navController: NavController) {
 
 }
