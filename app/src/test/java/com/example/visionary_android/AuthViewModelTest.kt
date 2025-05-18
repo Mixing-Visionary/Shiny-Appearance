@@ -9,14 +9,14 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.*
 import ru.visionary.mixing.shiny_appearance.data.local.TokenStorage
-import ru.visionary.mixing.shiny_appearance.data.repository.AuthRepository
+import ru.visionary.mixing.shiny_appearance.data.repository.AuthRepositoryImpl
 import ru.visionary.mixing.shiny_appearance.domain.model.AuthResponse
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModelTest {
 
-    private lateinit var repository: AuthRepository
+    private lateinit var repository: AuthRepositoryImpl
     private lateinit var tokenStorage: TokenStorage
     private lateinit var viewModel: AuthViewModel
 
@@ -46,7 +46,8 @@ class AuthViewModelTest {
         whenever(repository.login("email@test.com", "pass1111"))
             .thenReturn(AuthResponse(accessToken = access, refreshToken = refresh))
 
-        viewModel.login("email@test.com", "pass1111")
+        viewModel.login("email@test.com", "pass1111") { success ->
+        }
         testDispatcher.scheduler.advanceUntilIdle()
 
         verify(tokenStorage).saveTokens(access, refresh)

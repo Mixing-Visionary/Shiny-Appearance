@@ -107,8 +107,8 @@ fun AuthorizationScreen(
             }
             IconButton(
                 onClick = {
-                    if (!authViewModel.login(email, password)) {
-                        showError = true
+                    authViewModel.login(email, password) { success ->
+                        showError = !success
                     }
                 },
                 modifier = Modifier.size(50.dp)
