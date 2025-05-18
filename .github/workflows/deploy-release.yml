@@ -23,24 +23,28 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
+
       - name: Build Release APK
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          MINIO_ACCESS_KEY_ANDROID: ${{ secrets.MINIO_ACCESS_KEY_ANDROID }}
+          MINIO_SECRET_KEY_ANDROID: ${{ secrets.MINIO_SECRET_KEY_ANDROID }}
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > keystore.jks
           echo "$KEYSTORE_BASE64" | base64 -d > app/keystore.jks
           chmod 600 keystore.jks
           chmod 600 app/keystore.jks
-
           chmod +x gradlew
           ./gradlew :app:assembleRelease \
             -Pandroid.injected.signing.store.file=keystore.jks \
             -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
             -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
-            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
+            -PMINIO_ACCESS_KEY_ANDROID=$MINIO_ACCESS_KEY_ANDROID \
+            -PMINIO_SECRET_KEY_ANDROID=$MINIO_SECRET_KEY_ANDROID
 
       - name: Upload to Minio
         env:

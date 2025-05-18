@@ -19,8 +19,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -96,6 +98,7 @@ fun MainTabScreen(
 
             }
 
+
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -105,21 +108,22 @@ fun MainTabScreen(
                     when (selectedTabIndex) {
                         0 -> MainScreen(navController)
                         1 -> CreatePicture(navController)
-                        2 -> NavHost(
-                            navController = innerNavController,
-                            startDestination = "profile"
-                        ) {
-                            composable("profile") {
-                                MyProfileScreen(
-                                    parentNavController = navController,
-                                    innerNavController = innerNavController
-                                )
-                            }
-                            composable("myPost") {
-                                MyPostScreen(innerNavController)
+                        2 -> {
+                            NavHost(
+                                navController = innerNavController,
+                                startDestination = "profile"
+                            ) {
+                                composable("profile") {
+                                    MyProfileScreen(
+                                        parentNavController = navController,
+                                        innerNavController = innerNavController
+                                    )
+                                }
+                                composable("myPost") {
+                                    MyPostScreen(innerNavController)
+                                }
                             }
                         }
-
                         3 -> SettingsScreen(navController)
                     }
                 } else {
