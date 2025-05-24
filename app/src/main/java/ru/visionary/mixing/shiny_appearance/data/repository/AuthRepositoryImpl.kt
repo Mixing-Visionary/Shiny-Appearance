@@ -6,20 +6,21 @@ import ru.visionary.mixing.shiny_appearance.domain.model.AuthResponse
 import ru.visionary.mixing.shiny_appearance.domain.model.LoginRequest
 import ru.visionary.mixing.shiny_appearance.domain.model.RefreshRequest
 import ru.visionary.mixing.shiny_appearance.domain.model.RegisterRequest
+import ru.visionary.mixing.shiny_appearance.domain.repository.AuthRepository
 import javax.inject.Inject
 
-class AuthRepository @Inject constructor(
+class AuthRepositoryImpl @Inject constructor(
     private val authService: AuthService,
     private val tokenStorage: TokenStorage
-) {
-    suspend fun login(email: String, password: String): AuthResponse? = try {
+) : AuthRepository {
+    override suspend fun login(email: String, password: String): AuthResponse? = try {
         authService.login(LoginRequest(email, password))
     } catch (e: Exception) {
         e.printStackTrace()
         null
     }
 
-    suspend fun refreshToken(): AuthResponse? {
+    override suspend fun refreshToken(): AuthResponse? {
         val refresh = tokenStorage.getRefreshToken() ?: return null
         return try {
             authService.refresh(RefreshRequest(refresh))
@@ -28,7 +29,7 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun register(nickname: String, email: String, password: String): AuthResponse? = try {
+    override suspend fun register(nickname: String, email: String, password: String): AuthResponse? = try {
         authService.register(RegisterRequest(nickname, email, password))
     } catch (e: Exception) {
         e.printStackTrace()

@@ -57,7 +57,7 @@ import ru.visionary.mixing.shiny_appearance.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OtherUserProfileScreen(navController: NavController, role: String) {
+fun OtherUserProfileScreen(navController: NavController) {
     val gridState = rememberLazyGridState()
     val isATop = gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
     val hasEnoughItemsForScroll = (gridState.layoutInfo.totalItemsCount >= 13)

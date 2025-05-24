@@ -33,10 +33,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,14 +55,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
 import ru.visionary.mixing.shiny_appearance.R
+import ru.visionary.mixing.shiny_appearance.domain.model.DisplayImage
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.MyProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyProfileScreen(
     parentNavController: NavController,
-    innerNavController: NavController
+    innerNavController: NavController,
+    viewModel: MyProfileViewModel = hiltViewModel()
 ) {
 
     val gridState = rememberLazyGridState()
@@ -72,14 +80,36 @@ fun MyProfileScreen(
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
 
-    var textDescription by remember {
-        mutableStateOf(
-            "Любитель поиграть в игры и посмотреть " +
-                    "аниме \nНик в Telegram - @maxmattakushi"
-        )
-    }// временная заглушка
-    var textNik by remember { mutableStateOf("@JustiSablea") } // временная заглушка
+    val publicPosts by viewModel.publicPosts.collectAsState()
+    val privatePosts by viewModel.privatePosts.collectAsState()
+    val descFromVm by viewModel.description.collectAsState()
+    var textDescription by remember(descFromVm) {
+        mutableStateOf(descFromVm)
+    }
+    val nicknameFromVm by viewModel.nickname.collectAsState()
+    var textNik by remember(nicknameFromVm) {
+        mutableStateOf(nicknameFromVm)
+    }
 
+    LaunchedEffect(gridState, selectedButton) {
+        snapshotFlow {
+            val layoutInfo = gridState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastVisible to totalItems
+        }.collect { (lastVisible, totalItems) ->
+            if (lastVisible >= totalItems - 6) {
+                when (selectedButton) {
+                    0 -> viewModel.loadNextPagePublic()
+                    1 -> viewModel.loadNextPagePrivate()
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
     val maxLines = 5
     val maxCharsDesc = 255
     val maxCharsNik = 25
@@ -149,6 +179,8 @@ fun MyProfileScreen(
                         contentDescription = "people",
                         modifier = Modifier
                             .size(50.dp)
+                            .clickable {
+                            }
                     )
                     Icon(
                         painter = painterResource(id = R.drawable.stats),
@@ -242,51 +274,18 @@ fun MyProfileScreen(
                 Text(text = stringResource(id = R.string.personal))
             }
         }
-
-        var listPublications = listOf(
-            //временные заглушки
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen, R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-
-            )
-        var listPersonalPosts = listOf(
-            //временные заглушки
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-            R.drawable.registrationscreen,
-
-            )
-        if (selectedButton == 0) {
-            listOfPosts(listPublications, gridState, innerNavController)
-        } else {
-            listOfPosts(listPersonalPosts, gridState, innerNavController)
+        if (selectedButton == 0 && publicPosts.isNotEmpty()) {
+            listOfPosts(publicPosts, gridState, innerNavController)
+        } else if (selectedButton == 1 && privatePosts.isNotEmpty()) {
+            listOfPosts(privatePosts, gridState, innerNavController)
         }
+
     }
+
 }
 
 @Composable
-fun listOfPosts(list: List<Int>, gridState: LazyGridState, innerNavController: NavController) {
+fun listOfPosts(list: List<DisplayImage>, gridState: LazyGridState, innerNavController: NavController) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = Modifier
@@ -298,14 +297,14 @@ fun listOfPosts(list: List<Int>, gridState: LazyGridState, innerNavController: N
     ) {
         items(list) { imageRes ->
             Image(
-                painter = painterResource(id = imageRes),
+                painter = rememberAsyncImagePainter(imageRes.url),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .height(170.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.surface)
-                    .clickable { innerNavController.navigate("myPost")}
+                    .clickable { innerNavController.navigate("myPost") }
             )
         }
     }

@@ -33,11 +33,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.presentation.components.PublishItem
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.ImageSaveViewModel
 import ru.visionary.mixing.shiny_appearance.util.savePictureToGallery
 import ru.visionary.mixing.shiny_appearance.util.shareImage
 
@@ -48,6 +50,9 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
+    val imageSaveViewModel: ImageSaveViewModel = hiltViewModel()
+
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -168,6 +173,7 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                                             showBottomSheet = false
                                         }
                                     }
+                                imageSaveViewModel.saveImage(context, uri, "public")
                                 navController.navigate("mainTabsScreen?index=2")
                             })
                         PublishItem(
@@ -180,6 +186,7 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                                             showBottomSheet = false
                                         }
                                     }
+                                imageSaveViewModel.saveImage(context, uri, "private")
                                 navController.navigate("mainTabsScreen?index=2")
                             })
                     }
