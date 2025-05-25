@@ -21,6 +21,7 @@ import ru.visionary.mixing.shiny_appearance.presentation.screen.PhotoNeuralProce
 import ru.visionary.mixing.shiny_appearance.presentation.screen.PhotoPostProcessingScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.RegistrationScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.SplashScreen
+import ru.visionary.mixing.shiny_appearance.presentation.screen.WaitingScreen
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 
 
@@ -33,6 +34,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         if (isLoggedIn) {
             navController.navigate("mainTabsScreen?role=simpleUser&index=0") {
                 popUpTo("loginScreen") { inclusive = true }
+                popUpTo("splash_screen") { inclusive = true }
             }
         }
     }
@@ -53,6 +55,11 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
 
         composable("authorizationScreen") {
             AuthorizationScreen(navController)
+        }
+
+        composable("waitingScreen?uuid={uuid}") { backStackEntry ->
+            val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+            WaitingScreen(navController, uuid)
         }
 
         composable("mainTabsScreen?index={index}") { backStackEntry ->
