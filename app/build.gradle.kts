@@ -9,7 +9,21 @@ plugins {
 android {
     namespace = "ru.visionary.mixing.shiny_appearance"
     compileSdk = 35
-
+    buildFeatures {
+        buildConfig = true
+    }
+    defaultConfig {
+        buildConfigField(
+            "String",
+            "MINIO_ACCESS_KEY_ANDROID",
+            "\"${project.findProperty("MINIO_ACCESS_KEY_ANDROID") ?: ""}\""
+        )
+        buildConfigField(
+            "String",
+            "MINIO_SECRET_KEY_ANDROID",
+            "\"${project.findProperty("MINIO_SECRET_KEY_ANDROID") ?: ""}\""
+        )
+    }
     defaultConfig {
         applicationId = "ru.visionary.mixing.shiny_appearance"
         minSdk = 26
@@ -21,6 +35,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
     }
 
     buildTypes {
@@ -54,8 +69,10 @@ android {
 
 dependencies {
     val nav_version = "2.8.4"
-    // Jetpack Compose integration
     implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    implementation("com.amazonaws:aws-android-sdk-s3:2.72.0")
+    implementation("com.amazonaws:aws-android-sdk-core:2.72.0")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.2.0")
@@ -66,18 +83,17 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.51.1")
     kapt("com.google.dagger:hilt-compiler:2.51.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.retrofit2:retrofit:2.10.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.10.0")
 
-    // Views/Fragments integration
     implementation("androidx.navigation:navigation-fragment:$nav_version")
     implementation("androidx.navigation:navigation-ui:$nav_version")
 
-    // Feature module support for Fragments
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
 
-    // Testing Navigation
     androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
 
     implementation("io.coil-kt.coil3:coil-compose:3.0.4")

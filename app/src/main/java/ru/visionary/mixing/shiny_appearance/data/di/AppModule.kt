@@ -6,11 +6,19 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.visionary.mixing.shiny_appearance.data.local.TokenAuthenticator
 import ru.visionary.mixing.shiny_appearance.data.local.TokenStorage
 import ru.visionary.mixing.shiny_appearance.data.remote.api.AuthService
+import ru.visionary.mixing.shiny_appearance.data.remote.api.ProfileImagesService
+import ru.visionary.mixing.shiny_appearance.data.remote.api.ImageService
+import ru.visionary.mixing.shiny_appearance.data.remote.api.UserService
+import ru.visionary.mixing.shiny_appearance.data.repository.ProfileImagesRepositoryImpl
+import ru.visionary.mixing.shiny_appearance.data.repository.UserRepositoryImpl
+import ru.visionary.mixing.shiny_appearance.domain.repository.ProfileImagesRepository
+import ru.visionary.mixing.shiny_appearance.domain.repository.UserRepository
 import javax.inject.Singleton
 
 @Module
@@ -29,11 +37,21 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        return loggingInterceptor
+    }
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
         tokenStorage: TokenStorage,
-        authService: AuthService
+        authService: AuthService,
+        loggingInterceptor: HttpLoggingInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
             .authenticator(TokenAuthenticator(tokenStorage, authService))
             .addInterceptor { chain ->
                 val requestBuilder = chain.request().newBuilder()
@@ -45,6 +63,28 @@ object AppModule {
                 chain.proceed(requestBuilder.build())
             }
             .build()
+    }
+    @Provides
+    @Singleton
+    fun provideImageService(retrofit: Retrofit): ImageService {
+        return retrofit.create(ImageService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserService(retrofit: Retrofit): UserService {
+        return retrofit.create(UserService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(userService: UserService): UserRepository {
+        return UserRepositoryImpl(userService)
+    }
+
+    @Provides
+    fun provideProfileImagesService(retrofit: Retrofit): ProfileImagesService {
+        return retrofit.create(ProfileImagesService::class.java)
     }
 
     @Provides
