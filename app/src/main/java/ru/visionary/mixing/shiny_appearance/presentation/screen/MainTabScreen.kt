@@ -36,8 +36,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun MainTabScreen(
@@ -119,11 +122,19 @@ fun MainTabScreen(
                                         innerNavController = innerNavController
                                     )
                                 }
-                                composable("myPost") {
-                                    MyPostScreen(innerNavController)
+                                composable("myPost?uuid={uuid}&url={url}",
+                                    arguments = listOf(
+                                        navArgument("uuid") { defaultValue = "" },
+                                        navArgument("url") { defaultValue = "" }
+                                    )) { backStackEntry ->
+                                    val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                                    val encodedUrl = backStackEntry.arguments?.getString("url") ?: ""
+                                    val url = URLDecoder.decode(encodedUrl, StandardCharsets.UTF_8.toString())
+                                    MyPostScreen(innerNavController,uuid,url)
                                 }
                             }
                         }
+
                         3 -> SettingsScreen(navController)
                     }
                 } else {
