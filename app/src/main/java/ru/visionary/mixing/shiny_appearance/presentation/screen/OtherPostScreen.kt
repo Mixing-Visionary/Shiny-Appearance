@@ -1,5 +1,6 @@
 package ru.visionary.mixing.shiny_appearance.presentation.screen
 
+import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -44,6 +45,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,14 +53,29 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.presentation.components.CommentItem
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.OtherPostViewModel
+import ru.visionary.mixing.shiny_appearance.util.downloadImageToExternalFile
+import ru.visionary.mixing.shiny_appearance.util.savePictureToGallery
+import ru.visionary.mixing.shiny_appearance.util.shareImage
 import kotlin.math.roundToInt
 
 @Composable
-fun OtherPostScreen(innerNavController: NavController) {
+fun OtherPostScreen(
+    innerNavController: NavController,
+    uuid: String,
+    url: String,
+    viewModel: OtherPostViewModel = hiltViewModel()
+) {
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     var comment by remember { mutableStateOf("") }
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -69,7 +86,9 @@ fun OtherPostScreen(innerNavController: NavController) {
     val offsetX = remember {
         Animatable(0f)
     }
-
+    viewModel.getImageByUuid(uuid)
+    val imageInfo = viewModel.imageResponse.value
+    val authorNick = imageInfo?.authorNickname ?: ""
     val scope = rememberCoroutineScope()
 
     Box(
@@ -90,7 +109,7 @@ fun OtherPostScreen(innerNavController: NavController) {
                                     targetValue = 1000f,
                                     animationSpec = tween(durationMillis = 200)
                                 )
-                                innerNavController.navigate("profile")
+                                innerNavController.navigate("mainScreen")
                             } else {
                                 offsetX.animateTo(
                                     targetValue = 0f,
@@ -123,14 +142,23 @@ fun OtherPostScreen(innerNavController: NavController) {
                     .padding(start = 8.dp, end = 8.dp, top = 5.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.registrationscreen),
+                    painter = rememberAsyncImagePainter(url),
                     contentDescription = "Image",
                     modifier = Modifier
                         .fillMaxSize()
                 )
             }
-            Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.Start) {
-                Text(text = "@JustiSablea", color = MaterialTheme.colorScheme.onSurface, fontSize = 13.sp, modifier = Modifier.padding(start = 35.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp), horizontalArrangement = Arrangement.Start
+            ) {
+                Text(
+                    text = "@" + authorNick,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(start = 35.dp)
+                )
             }
             Row(
                 modifier = Modifier
@@ -152,6 +180,19 @@ fun OtherPostScreen(innerNavController: NavController) {
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
+                        .clickable(interactionSource = remember { MutableInteractionSource() },
+                            indication = null) {
+                            coroutineScope.launch {
+                                val uri = downloadImageToExternalFile(context, url)
+                                if (uri != null) {
+                                    shareImage(context, uri)
+                                } else {
+                                    Toast
+                                        .makeText(context, "Ошибка загрузки", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            }
+                        }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.save),
@@ -159,6 +200,40 @@ fun OtherPostScreen(innerNavController: NavController) {
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
+                        .clickable(interactionSource = remember { MutableInteractionSource() },
+                            indication = null) {
+                            coroutineScope.launch {
+                                val uri = downloadImageToExternalFile(context, url)
+                                if (uri != null) {
+                                    savePictureToGallery(
+                                        context = context,
+                                        uri = uri,
+                                        onSuccess = {
+                                            Toast
+                                                .makeText(
+                                                    context,
+                                                    "Сохранено в галерею",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                .show()
+                                        },
+                                        onError = { e ->
+                                            Toast
+                                                .makeText(
+                                                    context,
+                                                    "Ошибка при сохранении",
+                                                    Toast.LENGTH_LONG
+                                                )
+                                                .show()
+                                        }
+                                    )
+                                } else {
+                                    Toast
+                                        .makeText(context, "Ошибка загрузки", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                            }
+                        }
                 )
             }
             val immutableList = listOf(

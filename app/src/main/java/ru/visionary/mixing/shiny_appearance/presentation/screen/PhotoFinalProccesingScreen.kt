@@ -4,6 +4,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -104,7 +105,8 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(50.dp)
-                    .clickable {
+                    .clickable(interactionSource = remember { MutableInteractionSource() },
+                        indication = null) {
                         savePictureToGallery(
                             context = context,
                             uri = uri,
@@ -135,7 +137,8 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(50.dp)
-                    .clickable { showBottomSheet = true }
+                    .clickable(interactionSource = remember { MutableInteractionSource() },
+                        indication = null) { showBottomSheet = true }
             )
             Icon(
                 painter = painterResource(id = R.drawable.share),
@@ -143,7 +146,8 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(50.dp)
-                    .clickable {
+                    .clickable(interactionSource = remember { MutableInteractionSource() },
+                        indication = null) {
                         shareImage(context, uri)
                     }
             )
