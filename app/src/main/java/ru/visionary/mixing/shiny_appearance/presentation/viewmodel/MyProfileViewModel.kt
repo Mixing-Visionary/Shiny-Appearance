@@ -31,10 +31,9 @@ class MyProfileViewModel @Inject constructor(
     val description: StateFlow<String> = _description
 
     private val _publicImages = MutableStateFlow<List<ImageResponse>>(emptyList())
-    val publicImages: StateFlow<List<ImageResponse>> = _publicImages
+
 
     private val _privateImages = MutableStateFlow<List<ImageResponse>>(emptyList())
-    val privateImages: StateFlow<List<ImageResponse>> = _privateImages
 
     private val _publicPosts = MutableStateFlow<List<DisplayImage>>(emptyList())
     val publicPosts: StateFlow<List<DisplayImage>> = _publicPosts
@@ -67,6 +66,7 @@ class MyProfileViewModel @Inject constructor(
             resetAndLoadPrivate()
         }
     }
+
 
     private suspend fun fetchUserData() {
         _isLoading.value = true

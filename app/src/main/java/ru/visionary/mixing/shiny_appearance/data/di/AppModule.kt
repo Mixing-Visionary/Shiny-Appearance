@@ -12,12 +12,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.visionary.mixing.shiny_appearance.data.local.TokenAuthenticator
 import ru.visionary.mixing.shiny_appearance.data.local.TokenStorage
 import ru.visionary.mixing.shiny_appearance.data.remote.api.AuthService
+import ru.visionary.mixing.shiny_appearance.data.remote.api.FeedService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.ProfileImagesService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.ImageService
+import ru.visionary.mixing.shiny_appearance.data.remote.api.ProcessingService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.UserService
-import ru.visionary.mixing.shiny_appearance.data.repository.ProfileImagesRepositoryImpl
 import ru.visionary.mixing.shiny_appearance.data.repository.UserRepositoryImpl
-import ru.visionary.mixing.shiny_appearance.domain.repository.ProfileImagesRepository
 import ru.visionary.mixing.shiny_appearance.domain.repository.UserRepository
 import javax.inject.Singleton
 
@@ -86,6 +86,16 @@ object AppModule {
     fun provideProfileImagesService(retrofit: Retrofit): ProfileImagesService {
         return retrofit.create(ProfileImagesService::class.java)
     }
+
+    @Provides
+    fun provideProcessingService(retrofit: Retrofit): ProcessingService {
+        return retrofit.create(ProcessingService::class.java)
+    }
+
+    @Provides
+    fun provideFeedApi(retrofit: Retrofit): FeedService =
+        retrofit.create(FeedService::class.java)
+
 
     @Provides
     @Singleton

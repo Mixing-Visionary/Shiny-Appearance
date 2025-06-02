@@ -1,5 +1,6 @@
 package ru.visionary.mixing.shiny_appearance.presentation.screen
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -61,6 +62,8 @@ import coil3.compose.rememberAsyncImagePainter
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.domain.model.DisplayImage
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.MyProfileViewModel
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,8 +90,8 @@ fun MyProfileScreen(
         mutableStateOf(descFromVm)
     }
     val nicknameFromVm by viewModel.nickname.collectAsState()
-    var textNik by remember(nicknameFromVm) {
-        mutableStateOf(nicknameFromVm)
+    var textNik by remember("@"+nicknameFromVm) {
+        mutableStateOf("@"+nicknameFromVm)
     }
 
     LaunchedEffect(gridState, selectedButton) {
@@ -285,7 +288,11 @@ fun MyProfileScreen(
 }
 
 @Composable
-fun listOfPosts(list: List<DisplayImage>, gridState: LazyGridState, innerNavController: NavController) {
+fun listOfPosts(
+    list: List<DisplayImage>,
+    gridState: LazyGridState,
+    innerNavController: NavController
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = Modifier
@@ -304,7 +311,11 @@ fun listOfPosts(list: List<DisplayImage>, gridState: LazyGridState, innerNavCont
                     .height(170.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.surface)
-                    .clickable { innerNavController.navigate("myPost") }
+                    .clickable {
+                        val encodedUrl =
+                            URLEncoder.encode(imageRes.url, StandardCharsets.UTF_8.toString())
+                        innerNavController.navigate("myPost?uuid=${imageRes.uuid}&url=$encodedUrl")
+                    }
             )
         }
     }
