@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import ru.visionary.mixing.shiny_appearance.R
 
 @Composable
-fun CommentItem(text: String) {
+fun CommentItem(nick: String, comment: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .background(
@@ -50,13 +50,14 @@ fun CommentItem(text: String) {
                 modifier = Modifier
                     .clip(CircleShape)
                     .size(40.dp)
+                    .clickable { onClick() }
             )
             Text(
-                text = text,
+                text = nick + ": " + comment,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
-                modifier = Modifier.padding(start = 2.dp)
+                modifier = Modifier.padding(start = 5.dp)
             )
         }
     }

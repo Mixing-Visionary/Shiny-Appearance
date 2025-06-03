@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -133,6 +134,21 @@ fun MainTabScreen(
                                         StandardCharsets.UTF_8.toString()
                                     )
                                     OtherPostScreen(innerNavController, uuid, url)
+                                }
+                                composable(
+                                    route = "otherUserProfile?userId={userId}",
+                                    arguments = listOf(
+                                        navArgument("userId") {
+                                            type = NavType.IntType
+                                            nullable = false
+                                        }
+                                    )
+                                ) { backStackEntry ->
+                                    val userId = backStackEntry.arguments?.getInt("userId")!!
+                                    OtherUserProfileScreen(
+                                        innerNavController = innerNavController,
+                                        userId = userId
+                                    )
                                 }
                             }
                         }

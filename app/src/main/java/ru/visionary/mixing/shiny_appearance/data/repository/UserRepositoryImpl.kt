@@ -22,4 +22,19 @@ class UserRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun getUser(userId: Int): Result<UserResponse> {
+        return try {
+            val response = userService.getOtherUser(userId)
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Пустое тело ответа"))
+            } else {
+                Result.failure(Exception("Ошибка: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

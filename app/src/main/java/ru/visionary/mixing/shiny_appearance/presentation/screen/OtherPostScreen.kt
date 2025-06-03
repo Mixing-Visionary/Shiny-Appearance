@@ -33,8 +33,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,8 +70,13 @@ fun OtherPostScreen(
     innerNavController: NavController,
     uuid: String,
     url: String,
-    viewModel: OtherPostViewModel = hiltViewModel()
+    viewModel: OtherPostViewModel = hiltViewModel(),
 ) {
+    val comments by viewModel.comments.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getComments(uuid)
+    }
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -89,6 +94,7 @@ fun OtherPostScreen(
     viewModel.getImageByUuid(uuid)
     val imageInfo = viewModel.imageResponse.value
     val authorNick = imageInfo?.authorNickname ?: ""
+    val authorId = imageInfo?.authorId ?: 0
     val scope = rememberCoroutineScope()
 
     Box(
@@ -157,7 +163,9 @@ fun OtherPostScreen(
                     text = "@" + authorNick,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 13.sp,
-                    modifier = Modifier.padding(start = 35.dp)
+                    modifier = Modifier
+                        .padding(start = 35.dp)
+                        .clickable { innerNavController.navigate("otherUserProfile?userId=${authorId}") }
                 )
             }
             Row(
@@ -173,6 +181,7 @@ fun OtherPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
+                        .clickable {}
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.share),
@@ -180,8 +189,10 @@ fun OtherPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = null) {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
                             coroutineScope.launch {
                                 val uri = downloadImageToExternalFile(context, url)
                                 if (uri != null) {
@@ -200,8 +211,10 @@ fun OtherPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = null) {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
                             coroutineScope.launch {
                                 val uri = downloadImageToExternalFile(context, url)
                                 if (uri != null) {
@@ -236,14 +249,6 @@ fun OtherPostScreen(
                         }
                 )
             }
-            val immutableList = listOf(
-                "Дима: Отличное фото!",
-                "Даниил: Отличное фото!",
-                "Саша: Отличное фото!",
-                "Максим: Отличное фото!",
-                "Данила: Отличное фото!"
-            )
-            val list = remember { mutableStateListOf(*immutableList.toTypedArray()) }
 
             LazyColumn(
                 modifier = Modifier
@@ -252,8 +257,15 @@ fun OtherPostScreen(
                     .padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(list) { text ->
-                    CommentItem(text = text)
+                items(comments) { comment ->
+                    CommentItem(nick = comment.authorNickname, comment = comment.comment,
+                        {
+                            if (comment.authorId.toInt() == viewModel.myUserId.value) {
+                            } else {
+                                innerNavController.navigate("otherUserProfile?userId=${comment.authorId.toInt()}")
+                            }
+                        }
+                    )
                 }
             }
 
@@ -333,7 +345,15 @@ fun OtherPostScreen(
                             modifier = Modifier
                                 .padding(vertical = 10.dp)
                                 .clickable {
-                                    list.add("Нелли: " + comment)
+                                    viewModel.postComment(
+                                        uuid = uuid,
+                                        comment = comment,
+                                        onSuccess = {
+                                            viewModel.getComments(uuid)
+                                        },
+                                        onError = { errorMsg ->
+                                        }
+                                    )
                                     comment = ""
                                     writeComment = false
                                 }
