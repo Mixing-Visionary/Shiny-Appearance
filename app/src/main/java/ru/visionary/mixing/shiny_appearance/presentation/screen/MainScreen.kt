@@ -57,6 +57,7 @@ import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.MainScreenVie
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import ru.visionary.mixing.shiny_appearance.R
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +65,7 @@ fun MainScreen(
     parentNavController: NavController,
     innerNavController: NavController,
     viewModel: MainScreenViewModel = hiltViewModel()
-) {
+    ) {
     var expanded by remember { mutableStateOf(false) }
     val options = listOf("new", "popular", "follow")
     var selectedOptionText by remember { mutableStateOf(options[0]) }

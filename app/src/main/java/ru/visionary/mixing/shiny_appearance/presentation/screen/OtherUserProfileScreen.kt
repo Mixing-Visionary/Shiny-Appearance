@@ -65,9 +65,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.domain.model.DisplayImage
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.MyProfileViewModel
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.OtherProfileViewModel
 import java.net.URLEncoder
@@ -78,11 +80,14 @@ import kotlin.math.roundToInt
 @Composable
 fun OtherUserProfileScreen(
     innerNavController: NavController, parentNavController: NavController, userId: Int,
-    viewModel: OtherProfileViewModel = hiltViewModel()
+    viewModel: OtherProfileViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
     LaunchedEffect(userId) {
         viewModel.refresh(userId)
     }
+
+    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
 
     val gridState = rememberLazyGridState()
     val isATop = gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
@@ -99,6 +104,7 @@ fun OtherUserProfileScreen(
     var textNik by remember("@" + nicknameFromVm) {
         mutableStateOf("@" + nicknameFromVm)
     }
+    var isFollow by remember { mutableStateOf(false) }
     LaunchedEffect(gridState) {
         snapshotFlow {
             val layoutInfo = gridState.layoutInfo
@@ -200,14 +206,31 @@ fun OtherUserProfileScreen(
                             tint = MaterialTheme.colorScheme.primary,
                             contentDescription = "people",
                             modifier = Modifier
-                                .size(50.dp).clickable { parentNavController.navigate("otherFollowingScreen?userId=${userId}") }
+                                .size(50.dp)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) { parentNavController.navigate("otherFollowingScreen?userId=${userId}") }
                         )
                         Icon(
-                            painter = painterResource(id = R.drawable.person_add),
+                            painter = if (!isFollow) {
+                                painterResource(id = R.drawable.person_add)
+                            } else {
+                                painterResource(id = R.drawable.user_follow)
+                            },
                             tint = MaterialTheme.colorScheme.primary,
                             contentDescription = "stats",
                             modifier = Modifier
-                                .size(50.dp).clickable { viewModel.followUser(userId) }
+                                .size(50.dp)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
+                                    if (isLoggedIn) {
+                                        isFollow = true
+                                        viewModel.followUser(userId)
+                                    }
+                                }
                         )
                         Icon(
                             imageVector = Icons.Filled.FavoriteBorder,

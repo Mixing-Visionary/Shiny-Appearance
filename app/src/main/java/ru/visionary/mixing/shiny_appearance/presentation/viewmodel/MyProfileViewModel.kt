@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.visionary.mixing.shiny_appearance.data.repository.ProfileImagesRepositoryImpl
 import ru.visionary.mixing.shiny_appearance.domain.model.DisplayImage
@@ -15,6 +16,7 @@ import ru.visionary.mixing.shiny_appearance.domain.model.ImageResponse
 import ru.visionary.mixing.shiny_appearance.domain.repository.UserRepository
 import ru.visionary.mixing.shiny_appearance.util.getImageUrl
 import javax.inject.Inject
+
 @HiltViewModel
 class MyProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
@@ -165,4 +167,22 @@ class MyProfileViewModel @Inject constructor(
             isLoadingMorePrivate = false
         }
     }
+
+    private val _updateResult = MutableStateFlow<Result<Unit>?>(null)
+    val updateResult = _updateResult.asStateFlow()
+
+    fun updateUser(nickname: String?, description: String?, password: String?) {
+        viewModelScope.launch {
+            val result = userRepository.updateCurrentUser( nickname, description, password)
+            _updateResult.value = result
+        }
+    }
+
+    fun deleteCurrentUser(){
+        viewModelScope.launch {
+            userRepository.deleteCurrentUser()
+        }
+    }
+
+
 }

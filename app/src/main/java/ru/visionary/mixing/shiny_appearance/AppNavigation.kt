@@ -19,6 +19,7 @@ import ru.visionary.mixing.shiny_appearance.presentation.screen.FollowersScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.FollowingScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.LoginScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.MainTabScreen
+import ru.visionary.mixing.shiny_appearance.presentation.screen.NotificationScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.OtherFollowingScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.OtherUserProfileScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.PhotoFinalProcessingScreen
@@ -68,6 +69,10 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
 
         composable("followersScreen") {
             FollowersScreen(navController)
+        }
+
+        composable("notifScreen") {
+            NotificationScreen(navController)
         }
 
         composable(

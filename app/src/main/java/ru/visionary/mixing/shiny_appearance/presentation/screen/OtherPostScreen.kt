@@ -59,6 +59,7 @@ import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.presentation.components.CommentItem
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.OtherPostViewModel
 import ru.visionary.mixing.shiny_appearance.util.downloadImageToExternalFile
 import ru.visionary.mixing.shiny_appearance.util.savePictureToGallery
@@ -71,7 +72,10 @@ fun OtherPostScreen(
     uuid: String,
     url: String,
     viewModel: OtherPostViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
+    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
+
     val comments by viewModel.comments.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -181,7 +185,10 @@ fun OtherPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable {}
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {}
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.share),
@@ -276,88 +283,89 @@ fun OtherPostScreen(
                     }
                 }
             }
-
-            Row(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .clickable { writeComment = true }
-                ) {
-                    Row(
+            if (isLoggedIn) {
+                Row(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+                    Box(
                         modifier = Modifier
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(12.dp)
+                            )
                             .fillMaxWidth()
-                            .padding(end = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
+                            .wrapContentHeight()
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable { writeComment = true }
                     ) {
-                        TextField(value = comment,
-                            textStyle = TextStyle(fontSize = 13.sp),
-                            onValueChange = { newText ->
-                                if (newText.length <= 255) {
-                                    comment = newText
-                                }
-                            },
-                            placeholder = {
-                                Text(
-                                    text = stringResource(id = R.string.comment),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 13.sp
-                                )
-                            },
-                            interactionSource = interactionSource,
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent,
-                                cursorColor = MaterialTheme.colorScheme.onSurface,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent,
-                            ),
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .focusRequester(focusRequester)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) {
-
-                                }
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ArrowForward,
-                            contentDescription = "icon",
-                            tint = if (writeComment) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                Color.Transparent
-                            },
-                            modifier = Modifier
-                                .padding(vertical = 10.dp)
-                                .clickable {
-                                    viewModel.postComment(
-                                        uuid = uuid,
-                                        comment = comment,
-                                        onSuccess = {
-                                            viewModel.getComments(uuid)
-                                        },
-                                        onError = { errorMsg ->
-                                        }
+                                .fillMaxWidth()
+                                .padding(end = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            TextField(value = comment,
+                                textStyle = TextStyle(fontSize = 13.sp),
+                                onValueChange = { newText ->
+                                    if (newText.length <= 255) {
+                                        comment = newText
+                                    }
+                                },
+                                placeholder = {
+                                    Text(
+                                        text = stringResource(id = R.string.comment),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 13.sp
                                     )
-                                    comment = ""
-                                    writeComment = false
-                                }
-                        )
+                                },
+                                interactionSource = interactionSource,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    disabledContainerColor = Color.Transparent,
+                                    cursorColor = MaterialTheme.colorScheme.onSurface,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent,
+                                ),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .focusRequester(focusRequester)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) {
+
+                                    }
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,
+                                contentDescription = "icon",
+                                tint = if (writeComment) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    Color.Transparent
+                                },
+                                modifier = Modifier
+                                    .padding(vertical = 10.dp)
+                                    .clickable {
+                                        viewModel.postComment(
+                                            uuid = uuid,
+                                            comment = comment,
+                                            onSuccess = {
+                                                viewModel.getComments(uuid)
+                                            },
+                                            onError = { errorMsg ->
+                                            }
+                                        )
+                                        comment = ""
+                                        writeComment = false
+                                    }
+                            )
+                        }
                     }
                 }
             }

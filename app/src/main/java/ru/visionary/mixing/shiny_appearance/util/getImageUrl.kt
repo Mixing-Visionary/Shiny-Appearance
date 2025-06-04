@@ -8,8 +8,8 @@ import java.util.Date
 import ru.visionary.mixing.shiny_appearance.BuildConfig
 
 fun getImageUrl(uuid: String): String {
-    val ACCESS_KEY = "UE5qIJj1lMzX9XEdrAI2"
-    val SECRET_KEY = "4l540nk5IJsuvrUTasPqHlQtKuu92bOfc3gy2sNm"
+    val ACCESS_KEY = BuildConfig.MINIO_ACCESS_KEY_ANDROID
+    val SECRET_KEY = BuildConfig.MINIO_SECRET_KEY_ANDROID
     val MINIO_ENDPOINT = "http://185.188.182.20:9000"
     val BUCKET_NAME = "images"
     val credentials = BasicAWSCredentials(ACCESS_KEY, SECRET_KEY)

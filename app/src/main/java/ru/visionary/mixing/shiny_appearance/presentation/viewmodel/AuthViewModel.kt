@@ -3,18 +3,21 @@ package ru.visionary.mixing.shiny_appearance.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.visionary.mixing.shiny_appearance.data.local.TokenStorage
 import ru.visionary.mixing.shiny_appearance.data.repository.AuthRepositoryImpl
+import ru.visionary.mixing.shiny_appearance.domain.repository.UserRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepositoryImpl,
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
 ) : ViewModel() {
     val isLoggedIn = tokenStorage.accessToken
         .map { !it.isNullOrEmpty() }
@@ -52,4 +55,5 @@ class AuthViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch { tokenStorage.clearTokens() }
     }
+
 }

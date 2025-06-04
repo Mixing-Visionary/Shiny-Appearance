@@ -143,6 +143,7 @@ fun AuthorizationScreen(
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     )
                 },
+                singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 leadingIcon = {
                     Icon(
@@ -194,6 +195,7 @@ fun AuthorizationScreen(
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 },
+                singleLine = true,
                 trailingIcon = {
                     IconButton(
                         onClick = { passwordVisible = !passwordVisible }

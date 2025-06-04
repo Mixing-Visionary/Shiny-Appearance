@@ -154,6 +154,7 @@ fun RegistrationScreen(
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                     )
                 },
+                singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 leadingIcon = {
                     Icon(
@@ -188,6 +189,7 @@ fun RegistrationScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
+                singleLine = true,
                 placeholder = {
                     Text(
                         text = (stringResource(R.string.username)),
@@ -228,6 +230,7 @@ fun RegistrationScreen(
 
             OutlinedTextField(
                 value = password,
+                singleLine = true,
                 onValueChange = { password = it },
                 placeholder = {
                     Text(
@@ -285,6 +288,7 @@ fun RegistrationScreen(
 
             OutlinedTextField(
                 value = confirmpassword,
+                singleLine = true,
                 onValueChange = { confirmpassword = it },
                 placeholder = {
                     Text(
