@@ -5,6 +5,7 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -27,10 +28,25 @@ interface ImageService {
         @Path("uuid") uuid: String
     ): Response<ImageResponse>
 
+    @DELETE("/api/v1/image/{uuid}")
+    suspend fun deleteImageByUuid(
+        @Path("uuid") uuid: String
+    ): Response<Unit>
+
     @PUT("/api/v1/image/{uuid}")
     suspend fun updateImagePrivacy(
         @Path("uuid") uuid: String,
         @Body request: UpdateImageRequest
+    ): Response<Unit>
+
+    @POST("/api/v1/image/{uuid}/like")
+    suspend fun likeImage(
+        @Path("uuid") uuid: String
+    ): Response<Unit>
+
+    @DELETE("/api/v1/image/{uuid}/like")
+    suspend fun dislikeImage(
+        @Path("uuid") uuid: String
     ): Response<Unit>
 
 }

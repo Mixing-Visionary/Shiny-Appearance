@@ -1,5 +1,6 @@
 package ru.visionary.mixing.shiny_appearance.presentation.screen
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -99,6 +100,11 @@ fun OtherPostScreen(
     val imageInfo = viewModel.imageResponse.value
     val authorNick = imageInfo?.authorNickname ?: ""
     val authorId = imageInfo?.authorId ?: 0
+    var imageLiked by remember { mutableStateOf(false) }
+
+    LaunchedEffect(imageInfo?.liked) {
+        imageLiked = imageInfo?.liked ?: false
+    }
     val scope = rememberCoroutineScope()
 
     Box(
@@ -180,7 +186,11 @@ fun OtherPostScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.favorite),
+                    painter = if (imageLiked) {
+                        painterResource(id = R.drawable.favorite_fill)
+                    } else {
+                        painterResource(id = R.drawable.favorite)
+                    },
                     contentDescription = "Нравиться",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
@@ -188,7 +198,15 @@ fun OtherPostScreen(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
-                        ) {}
+                        ) {
+                            if (imageLiked) {
+                                viewModel.dislikeImage(uuid)
+                                imageLiked = false
+                            } else {
+                                viewModel.likeImage(uuid)
+                                imageLiked = true
+                            }
+                        }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.share),

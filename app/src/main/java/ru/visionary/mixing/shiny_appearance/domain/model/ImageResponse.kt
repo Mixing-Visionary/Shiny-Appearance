@@ -6,5 +6,5 @@ data class ImageResponse(
     val authorId: Int,
     val authorNickname: String,
     val authorAvatarUuid: String?,
-    val likes: Int
+    val liked: Boolean?
 )

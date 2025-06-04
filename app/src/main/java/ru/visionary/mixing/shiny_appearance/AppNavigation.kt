@@ -38,7 +38,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
-            navController.navigate("mainTabsScreen?role=simpleUser&index=0") {
+            navController.navigate("mainTabsScreen?role=simpleUser&index=1") {
                 popUpTo("loginScreen") { inclusive = true }
                 popUpTo("splash_screen") { inclusive = true }
             }
@@ -96,7 +96,7 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
         }
 
         composable("mainTabsScreen?index={index}") { backStackEntry ->
-            val index = backStackEntry.arguments?.getString("index")?.toIntOrNull() ?: 0
+            val index = backStackEntry.arguments?.getString("index")?.toIntOrNull() ?: 1
             MainTabScreen(navController, index)
         }
 

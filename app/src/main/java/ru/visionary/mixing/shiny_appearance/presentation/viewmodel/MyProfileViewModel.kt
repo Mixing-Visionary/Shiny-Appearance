@@ -32,6 +32,9 @@ class MyProfileViewModel @Inject constructor(
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description
 
+    private val _likes = MutableStateFlow(0)
+    val likes: StateFlow<Int> = _likes
+
     private val _publicImages = MutableStateFlow<List<ImageResponse>>(emptyList())
 
 
@@ -78,6 +81,8 @@ class MyProfileViewModel @Inject constructor(
             val user = userResult.getOrNull()
             _nickname.value = user?.nickname.orEmpty()
             _description.value = user?.description.orEmpty()
+            _likes.value = user?.likes ?: 0
+
             _errorMessage.value = null
         } else {
             _errorMessage.value = userResult.exceptionOrNull()?.message
@@ -173,12 +178,12 @@ class MyProfileViewModel @Inject constructor(
 
     fun updateUser(nickname: String?, description: String?, password: String?) {
         viewModelScope.launch {
-            val result = userRepository.updateCurrentUser( nickname, description, password)
+            val result = userRepository.updateCurrentUser(nickname, description, password)
             _updateResult.value = result
         }
     }
 
-    fun deleteCurrentUser(){
+    fun deleteCurrentUser() {
         viewModelScope.launch {
             userRepository.deleteCurrentUser()
         }

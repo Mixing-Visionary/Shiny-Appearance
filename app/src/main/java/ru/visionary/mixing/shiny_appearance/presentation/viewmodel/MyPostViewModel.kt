@@ -64,7 +64,20 @@ class MyPostViewModel @Inject constructor(
         }
     }
 
-    fun postComment(uuid: String, comment: String, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+    fun deleteImageByUuid(uuid: String) {
+        viewModelScope.launch {
+
+            imageRepository.deleteImageByUuid(uuid)
+
+        }
+    }
+
+    fun postComment(
+        uuid: String,
+        comment: String,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
         viewModelScope.launch {
             val result = commentRepository.postComment(uuid, comment)
             result

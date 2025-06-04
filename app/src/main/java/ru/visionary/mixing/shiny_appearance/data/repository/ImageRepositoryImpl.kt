@@ -28,6 +28,21 @@ class ImageRepositoryImpl @Inject constructor(private val imageService: ImageSer
         }
     }
 
+    override suspend fun deleteImageByUuid(uuid: String): Result<Unit> {
+        return try {
+            val response = imageService.deleteImageByUuid(uuid)
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Response body is null"))
+            } else {
+                Result.failure(Exception("Request failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun updateImagePrivacy(uuid: String, protection: ProtectionType): Result<Unit> {
         return try {
             val response = imageService.updateImagePrivacy(uuid, UpdateImageRequest(protection))
@@ -35,6 +50,32 @@ class ImageRepositoryImpl @Inject constructor(private val imageService: ImageSer
                 Result.success(Unit)
             } else {
                 Result.failure(Exception("Failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun likeImage(uuid: String): Result<Unit> {
+        return try {
+            val response = imageService.likeImage(uuid)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Ошибка: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun dislikeImage(uuid: String): Result<Unit> {
+        return try {
+            val response = imageService.dislikeImage(uuid)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Ошибка: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

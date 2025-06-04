@@ -15,12 +15,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -28,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.presentation.components.SettingsItem
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
@@ -340,6 +346,8 @@ fun SettingsScreen(
 
 @Composable
 fun CustomProDialog(onDismiss: () -> Unit) {
+    var showLoading by remember { mutableStateOf(false) }
+    var showSuccess by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -353,92 +361,198 @@ fun CustomProDialog(onDismiss: () -> Unit) {
                     .background(Color.White, shape = RoundedCornerShape(12.dp))
                     .padding(16.dp)
             ) {
-                Column(horizontalAlignment = Alignment.Start) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
+                if (!showLoading) {
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                text = stringResource(id = R.string.pro_part1),
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 30.dp)
+                            )
+                        }
                         Text(
-                            textAlign = TextAlign.Center,
-                            text = stringResource(id = R.string.pro_part1),
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 30.dp)
+                            textAlign = TextAlign.Start,
+                            fontSize = 13.sp,
+                            text = buildAnnotatedString {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                ) {
+                                    append(stringResource(R.string.pro_part2))
+                                }
+                                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                    append(stringResource(R.string.pro_part3))
+                                }
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                ) {
+                                    append(stringResource(R.string.pro_part4))
+                                }
+                                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                    append(stringResource(R.string.pro_part5))
+                                }
+                            }
                         )
-                    }
-                    Text(
-                        textAlign = TextAlign.Start,
-                        fontSize = 13.sp,
-                        text = buildAnnotatedString {
-                            withStyle(
-                                style = SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold
-                                )
+
+                        Row(modifier = Modifier.padding(start = 15.dp, end = 15.dp, top = 30.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .shadow(
+                                        elevation = 10.dp,
+                                        shape = RoundedCornerShape(48.dp),
+                                        clip = false
+                                    )
+                                    .background(
+                                        color = Color.White,
+                                        shape = RoundedCornerShape(48.dp)
+                                    )
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(48.dp)
+                                    )
+                                    .clickable { showLoading=true }
                             ) {
-                                append(stringResource(R.string.pro_part2))
-                            }
-                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                                append(stringResource(R.string.pro_part3))
-                            }
-                            withStyle(
-                                style = SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            ) {
-                                append(stringResource(R.string.pro_part4))
-                            }
-                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                                append(stringResource(R.string.pro_part5))
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = "Оплатить на месяц",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowForward,
+                                        contentDescription = "icon",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(vertical = 10.dp)
+                                    )
+                                }
                             }
                         }
-                    )
 
-                    Row(modifier = Modifier.padding(start = 15.dp, end = 15.dp, top = 30.dp)) {
-                        Box(
-                            modifier = Modifier
-                                .shadow(
-                                    elevation = 10.dp,
-                                    shape = RoundedCornerShape(48.dp),
-                                    clip = false
-                                )
-                                .background(
-                                    color = Color.White,
-                                    shape = RoundedCornerShape(48.dp)
-                                )
-                                .fillMaxWidth()
-                                .height(48.dp)
-                                .border(
-                                    width = 1.dp,
+                        Row(modifier = Modifier.padding(start = 15.dp, end = 15.dp, top = 30.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .shadow(
+                                        elevation = 10.dp,
+                                        shape = RoundedCornerShape(48.dp),
+                                        clip = false
+                                    )
+                                    .background(
+                                        color = Color.White,
+                                        shape = RoundedCornerShape(48.dp)
+                                    )
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(48.dp)
+                                    )
+                                    .clickable { showLoading=true }
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = "Оплатить на год",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowForward,
+                                        contentDescription = "icon",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(vertical = 10.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    if (!showSuccess) {
+                        LaunchedEffect(Unit) {
+                            delay(2500)
+                            showSuccess = true
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .background(Color.Transparent)
+                                    .padding(top = 30.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
                                     color = MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(48.dp)
+                                    modifier = Modifier.size(100.dp),
+                                    strokeWidth = 6.dp
                                 )
-                                .clickable { onDismiss() }
+                            }
+                            Text(
+                                text = "В процессе оплаты",
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 50.dp, bottom = 30.dp)
+                            )
+                        }
+                    } else {
+                        LaunchedEffect(Unit) {
+                            delay(500)
+                            onDismiss()
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                    .fillMaxWidth()
+                                    .padding(top = 30.dp),
+                                horizontalArrangement = Arrangement.Center
                             ) {
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text(
-                                    text = "Продолжить",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Spacer(modifier = Modifier.weight(1f))
                                 Icon(
-                                    imageVector = Icons.Default.ArrowForward,
-                                    contentDescription = "icon",
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "Success",
                                     tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(vertical = 10.dp)
+                                    modifier = Modifier.size(100.dp)
                                 )
                             }
+                            Text(
+                                text = "Подписка оформлена",
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 50.dp, bottom = 30.dp)
+                            )
                         }
                     }
                 }
@@ -449,6 +563,8 @@ fun CustomProDialog(onDismiss: () -> Unit) {
 
 @Composable
 fun CustomPremiumDialog(onDismiss: () -> Unit) {
+    var showLoading by remember { mutableStateOf(false) }
+    var showSuccess by remember { mutableStateOf(false) }
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -462,92 +578,198 @@ fun CustomPremiumDialog(onDismiss: () -> Unit) {
                     .background(Color.White, shape = RoundedCornerShape(12.dp))
                     .padding(16.dp)
             ) {
-                Column(horizontalAlignment = Alignment.Start) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
+                if (!showLoading) {
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                text = stringResource(id = R.string.premium_part1),
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 30.dp)
+                            )
+                        }
                         Text(
-                            textAlign = TextAlign.Center,
-                            text = stringResource(id = R.string.premium_part1),
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 30.dp)
+                            textAlign = TextAlign.Start,
+                            fontSize = 13.sp,
+                            text = buildAnnotatedString {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                ) {
+                                    append(stringResource(R.string.premium_part2))
+                                }
+                                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                    append(stringResource(R.string.premium_part3))
+                                }
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                ) {
+                                    append(stringResource(R.string.premium_part4))
+                                }
+                                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                    append(stringResource(R.string.premium_part5))
+                                }
+                            }
                         )
-                    }
-                    Text(
-                        textAlign = TextAlign.Start,
-                        fontSize = 13.sp,
-                        text = buildAnnotatedString {
-                            withStyle(
-                                style = SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold
-                                )
+
+                        Row(modifier = Modifier.padding(start = 15.dp, end = 15.dp, top = 30.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .shadow(
+                                        elevation = 10.dp,
+                                        shape = RoundedCornerShape(48.dp),
+                                        clip = false
+                                    )
+                                    .background(
+                                        color = Color.White,
+                                        shape = RoundedCornerShape(48.dp)
+                                    )
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(48.dp)
+                                    )
+                                    .clickable { showLoading = true }
                             ) {
-                                append(stringResource(R.string.premium_part2))
-                            }
-                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                                append(stringResource(R.string.premium_part3))
-                            }
-                            withStyle(
-                                style = SpanStyle(
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            ) {
-                                append(stringResource(R.string.premium_part4))
-                            }
-                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                                append(stringResource(R.string.premium_part5))
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = "Оплатить на месяц",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowForward,
+                                        contentDescription = "icon",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(vertical = 10.dp)
+                                    )
+                                }
                             }
                         }
-                    )
 
-                    Row(modifier = Modifier.padding(start = 15.dp, end = 15.dp, top = 30.dp)) {
-                        Box(
-                            modifier = Modifier
-                                .shadow(
-                                    elevation = 10.dp,
-                                    shape = RoundedCornerShape(48.dp),
-                                    clip = false
-                                )
-                                .background(
-                                    color = Color.White,
-                                    shape = RoundedCornerShape(48.dp)
-                                )
-                                .fillMaxWidth()
-                                .height(48.dp)
-                                .border(
-                                    width = 1.dp,
+                        Row(modifier = Modifier.padding(start = 15.dp, end = 15.dp, top = 30.dp)) {
+                            Box(
+                                modifier = Modifier
+                                    .shadow(
+                                        elevation = 10.dp,
+                                        shape = RoundedCornerShape(48.dp),
+                                        clip = false
+                                    )
+                                    .background(
+                                        color = Color.White,
+                                        shape = RoundedCornerShape(48.dp)
+                                    )
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(48.dp)
+                                    )
+                                    .clickable { showLoading = true }
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(
+                                        text = "Оплатить на год",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowForward,
+                                        contentDescription = "icon",
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(vertical = 10.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (!showSuccess) {
+                        LaunchedEffect(Unit) {
+                            delay(2500)
+                            showSuccess = true
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .background(Color.Transparent)
+                                    .padding(top = 30.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
                                     color = MaterialTheme.colorScheme.primary,
-                                    shape = RoundedCornerShape(48.dp)
+                                    modifier = Modifier.size(100.dp),
+                                    strokeWidth = 6.dp
                                 )
-                                .clickable { onDismiss() }
+                            }
+                            Text(
+                                text = "В процессе оплаты",
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 50.dp, bottom = 30.dp)
+                            )
+                        }
+                    } else {
+                        LaunchedEffect(Unit) {
+                            delay(500)
+                            onDismiss()
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                    .fillMaxWidth()
+                                    .padding(top = 30.dp),
+                                horizontalArrangement = Arrangement.Center
                             ) {
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text(
-                                    text = "Продолжить",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Spacer(modifier = Modifier.weight(1f))
                                 Icon(
-                                    imageVector = Icons.Default.ArrowForward,
-                                    contentDescription = "icon",
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "Success",
                                     tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(vertical = 10.dp)
+                                    modifier = Modifier.size(100.dp)
                                 )
                             }
+                            Text(
+                                text = "Подписка оформлена",
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 50.dp, bottom = 30.dp)
+                            )
                         }
                     }
                 }
