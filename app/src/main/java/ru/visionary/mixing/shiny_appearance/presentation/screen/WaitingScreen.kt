@@ -45,6 +45,8 @@ fun WaitingScreen(
     val bitmap by viewModel.imageBitmap
     var isLoading by remember { mutableStateOf(true) }
 
+
+
     LaunchedEffect(uuid) {
         viewModel.connectToWebSocket(uuid)
     }

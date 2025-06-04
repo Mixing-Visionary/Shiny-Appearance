@@ -192,8 +192,10 @@ fun MyPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = null) {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
                             if (protection == "public") {
                                 protection = "private"
                                 viewModel.changeProtection(uuid, ProtectionType.PRIVATE)
@@ -209,8 +211,10 @@ fun MyPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = null) {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
                             coroutineScope.launch {
                                 val uri = downloadImageToExternalFile(context, url)
                                 if (uri != null) {
@@ -229,6 +233,18 @@ fun MyPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            viewModel.deleteImageByUuid(uuid)
+                            innerNavController.navigate("profile") {
+                                popUpTo(innerNavController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.save),
@@ -236,8 +252,10 @@ fun MyPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = null) {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
                             coroutineScope.launch {
                                 val uri = downloadImageToExternalFile(context, url)
                                 if (uri != null) {

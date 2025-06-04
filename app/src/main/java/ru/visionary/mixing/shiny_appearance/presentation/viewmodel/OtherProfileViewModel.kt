@@ -33,6 +33,9 @@ class OtherProfileViewModel @Inject constructor(
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description
 
+    private val _likes = MutableStateFlow(0)
+    val likes: StateFlow<Int> = _likes
+
     private val _publicImages = MutableStateFlow<List<ImageResponse>>(emptyList())
 
     private val _publicPosts = MutableStateFlow<List<DisplayImage>>(emptyList())
@@ -82,6 +85,7 @@ class OtherProfileViewModel @Inject constructor(
             _userId.value = user?.userId!!
             _nickname.value = user?.nickname.orEmpty()
             _description.value = user?.description.orEmpty()
+            _likes.value = user?.likes ?: 0
             _errorMessage.value = null
         } else {
             _errorMessage.value = userResult.exceptionOrNull()?.message

@@ -30,7 +30,7 @@ class MainScreenViewModel @Inject constructor(
     val errorMessage: StateFlow<String?> = _errorMessage
 
     init {
-        loadNextPagePublic("new")
+        refresh("new")
     }
 
     fun refresh(sort: String) {

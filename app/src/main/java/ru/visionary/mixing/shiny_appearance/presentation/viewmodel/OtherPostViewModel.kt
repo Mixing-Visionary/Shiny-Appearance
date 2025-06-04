@@ -37,6 +37,24 @@ class OtherPostViewModel @Inject constructor(
 
     private val _comments = MutableStateFlow<List<CommentResponse>>(emptyList())
     val comments: StateFlow<List<CommentResponse>> = _comments
+
+    private val _likeResult = MutableLiveData<Result<Unit>>()
+    val likeResult: LiveData<Result<Unit>> = _likeResult
+
+    private val _dislikeResult = MutableLiveData<Result<Unit>>()
+    val dislikeResult: LiveData<Result<Unit>> = _dislikeResult
+
+    fun likeImage(uuid: String) {
+        viewModelScope.launch {
+            _likeResult.value = imageRepository.likeImage(uuid)
+        }
+    }
+
+    fun dislikeImage(uuid: String) {
+        viewModelScope.launch {
+            _dislikeResult.value = imageRepository.dislikeImage(uuid)
+        }
+    }
     fun getImageByUuid(uuid: String) {
         viewModelScope.launch {
             _isLoading.value = true

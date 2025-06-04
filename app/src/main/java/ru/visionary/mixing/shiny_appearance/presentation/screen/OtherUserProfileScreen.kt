@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -96,6 +97,10 @@ fun OtherUserProfileScreen(
     val shouldShowProfile = isATop || !hasEnoughItemsForScroll
     val publicPosts by viewModel.publicPosts.collectAsState()
     val descFromVm by viewModel.description.collectAsState()
+    val likesFromVm by viewModel.likes.collectAsState()
+    var likes by remember(likesFromVm) {
+        mutableStateOf(likesFromVm)
+    }
     val userId by viewModel.userId.collectAsState()
     var textDescription by remember(descFromVm) {
         mutableStateOf(descFromVm)
@@ -197,48 +202,80 @@ fun OtherUserProfileScreen(
                         )
                     }
                     Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
                             .padding(top = 3.dp)
                             .fillMaxWidth()
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.people),
-                            tint = MaterialTheme.colorScheme.primary,
-                            contentDescription = "people",
+                        Box(
                             modifier = Modifier
-                                .size(50.dp)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) { parentNavController.navigate("otherFollowingScreen?userId=${userId}") }
-                        )
-                        Icon(
-                            painter = if (!isFollow) {
-                                painterResource(id = R.drawable.person_add)
-                            } else {
-                                painterResource(id = R.drawable.user_follow)
-                            },
-                            tint = MaterialTheme.colorScheme.primary,
-                            contentDescription = "stats",
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) {
-                                    if (isLoggedIn) {
-                                        isFollow = true
-                                        viewModel.followUser(userId)
+                                .weight(1f)
+                                .wrapContentSize(Alignment.Center)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.people),
+                                tint = MaterialTheme.colorScheme.primary,
+                                contentDescription = "people",
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) {
+                                        parentNavController.navigate("otherFollowingScreen?userId=${userId}")
                                     }
-                                }
-                        )
-                        Icon(
-                            imageVector = Icons.Filled.FavoriteBorder,
-                            tint = MaterialTheme.colorScheme.primary,
-                            contentDescription = "like",
+                            )
+                        }
+
+                        Box(
                             modifier = Modifier
-                                .size(50.dp)
-                        )
+                                .weight(1f)
+                                .wrapContentSize(Alignment.Center)
+                        ) {
+                            Icon(
+                                painter = if (!isFollow) {
+                                    painterResource(id = R.drawable.person_add)
+                                } else {
+                                    painterResource(id = R.drawable.user_follow)
+                                },
+                                tint = MaterialTheme.colorScheme.primary,
+                                contentDescription = "follow",
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) {
+                                        if (isLoggedIn) {
+                                            isFollow = true
+                                            viewModel.followUser(userId)
+                                        }
+                                    }
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .wrapContentSize(Alignment.Center)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.FavoriteBorder,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    contentDescription = "like",
+                                    modifier = Modifier.size(50.dp)
+                                )
+                                Text(
+                                    text = likes.toString(),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
                     }
                     Text(
                         text = stringResource(id = R.string.users_description),
