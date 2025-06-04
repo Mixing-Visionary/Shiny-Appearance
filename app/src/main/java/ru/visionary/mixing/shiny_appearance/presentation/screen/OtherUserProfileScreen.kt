@@ -77,12 +77,13 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherUserProfileScreen(
-    innerNavController: NavController, userId: Int,
+    innerNavController: NavController, parentNavController: NavController, userId: Int,
     viewModel: OtherProfileViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(Unit) {
+    LaunchedEffect(userId) {
         viewModel.refresh(userId)
     }
+
     val gridState = rememberLazyGridState()
     val isATop = gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0
     val hasEnoughItemsForScroll = (gridState.layoutInfo.totalItemsCount >= 13)
@@ -90,6 +91,7 @@ fun OtherUserProfileScreen(
     val shouldShowProfile = isATop || !hasEnoughItemsForScroll
     val publicPosts by viewModel.publicPosts.collectAsState()
     val descFromVm by viewModel.description.collectAsState()
+    val userId by viewModel.userId.collectAsState()
     var textDescription by remember(descFromVm) {
         mutableStateOf(descFromVm)
     }
@@ -97,7 +99,6 @@ fun OtherUserProfileScreen(
     var textNik by remember("@" + nicknameFromVm) {
         mutableStateOf("@" + nicknameFromVm)
     }
-
     LaunchedEffect(gridState) {
         snapshotFlow {
             val layoutInfo = gridState.layoutInfo
@@ -199,14 +200,14 @@ fun OtherUserProfileScreen(
                             tint = MaterialTheme.colorScheme.primary,
                             contentDescription = "people",
                             modifier = Modifier
-                                .size(50.dp)
+                                .size(50.dp).clickable { parentNavController.navigate("otherFollowingScreen?userId=${userId}") }
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.person_add),
                             tint = MaterialTheme.colorScheme.primary,
                             contentDescription = "stats",
                             modifier = Modifier
-                                .size(50.dp)
+                                .size(50.dp).clickable { viewModel.followUser(userId) }
                         )
                         Icon(
                             imageVector = Icons.Filled.FavoriteBorder,

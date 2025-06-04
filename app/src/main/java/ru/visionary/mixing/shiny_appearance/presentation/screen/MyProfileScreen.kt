@@ -90,8 +90,8 @@ fun MyProfileScreen(
         mutableStateOf(descFromVm)
     }
     val nicknameFromVm by viewModel.nickname.collectAsState()
-    var textNik by remember("@"+nicknameFromVm) {
-        mutableStateOf("@"+nicknameFromVm)
+    var textNik by remember("@" + nicknameFromVm) {
+        mutableStateOf("@" + nicknameFromVm)
     }
 
     LaunchedEffect(gridState, selectedButton) {
@@ -183,6 +183,7 @@ fun MyProfileScreen(
                         modifier = Modifier
                             .size(50.dp)
                             .clickable {
+                                parentNavController.navigate("followingScreen")
                             }
                     )
                     Icon(
@@ -191,6 +192,7 @@ fun MyProfileScreen(
                         contentDescription = "stats",
                         modifier = Modifier
                             .size(50.dp)
+                            .clickable { parentNavController.navigate("followersScreen") }
                     )
                     Icon(
                         imageVector = Icons.Filled.FavoriteBorder,

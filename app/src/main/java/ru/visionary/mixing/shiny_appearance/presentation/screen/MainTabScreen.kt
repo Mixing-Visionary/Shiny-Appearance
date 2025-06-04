@@ -147,6 +147,7 @@ fun MainTabScreen(
                                     val userId = backStackEntry.arguments?.getInt("userId")!!
                                     OtherUserProfileScreen(
                                         innerNavController = innerNavController,
+                                        parentNavController = navController,
                                         userId = userId
                                     )
                                 }

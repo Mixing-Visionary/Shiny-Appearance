@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import ru.visionary.mixing.shiny_appearance.data.repository.FollowRepositoryImpl
 import ru.visionary.mixing.shiny_appearance.data.repository.ProfileImagesRepositoryImpl
 import ru.visionary.mixing.shiny_appearance.domain.model.DisplayImage
 import ru.visionary.mixing.shiny_appearance.domain.model.ImageResponse
@@ -19,11 +20,12 @@ import javax.inject.Inject
 @HiltViewModel
 class OtherProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val profileImagesRepositoryImpl: ProfileImagesRepositoryImpl
+    private val profileImagesRepositoryImpl: ProfileImagesRepositoryImpl,
+    private val followRepository: FollowRepositoryImpl
 ) : ViewModel() {
 
-    var userId by mutableStateOf(0)
-        private set
+    private val _userId = MutableStateFlow(0)
+    val userId: StateFlow<Int> = _userId
 
     private val _nickname = MutableStateFlow("")
     val nickname: StateFlow<String> = _nickname
@@ -42,9 +44,19 @@ class OtherProfileViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    private val _followResult = MutableStateFlow<Result<Unit>?>(null)
+    val followResult: StateFlow<Result<Unit>?> = _followResult
+
     private var publicPage = 0
     private var isLoadingMorePublic = false
     private var isLastPagePublic = false
+
+    fun followUser(userId: Int) {
+        viewModelScope.launch {
+            val result = followRepository.followUser(userId)
+            _followResult.value = result
+        }
+    }
 
     fun refresh(userId: Int) {
         viewModelScope.launch {
@@ -67,6 +79,7 @@ class OtherProfileViewModel @Inject constructor(
         val userResult = userRepository.getUser(userId)
         if (userResult.isSuccess) {
             val user = userResult.getOrNull()
+            _userId.value = user?.userId!!
             _nickname.value = user?.nickname.orEmpty()
             _description.value = user?.description.orEmpty()
             _errorMessage.value = null

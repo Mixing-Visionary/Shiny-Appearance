@@ -64,5 +64,8 @@
     <string name="unauth_profile">"Авторизируйтесь, чтобы зайти в свой профиль"</string>
     <string name="enter_to_account">"Войти в аккаунт"</string>
 
+    <string name="following">"Ваши подписки"</string>
+    <string name="other_following">"Подписки у"</string>
+    <string name="followers">"На вас подписаны"</string>
 
 </resources>

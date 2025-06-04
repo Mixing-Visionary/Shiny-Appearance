@@ -14,6 +14,7 @@ import ru.visionary.mixing.shiny_appearance.data.local.TokenStorage
 import ru.visionary.mixing.shiny_appearance.data.remote.api.AuthService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.CommentService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.FeedService
+import ru.visionary.mixing.shiny_appearance.data.remote.api.FollowService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.ProfileImagesService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.ImageService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.ProcessingService
@@ -103,6 +104,10 @@ object AppModule {
         return retrofit.create(CommentService::class.java)
     }
 
+    @Provides
+    fun provideFollowService(retrofit: Retrofit): FollowService {
+        return retrofit.create(FollowService::class.java)
+    }
 
     @Provides
     @Singleton
