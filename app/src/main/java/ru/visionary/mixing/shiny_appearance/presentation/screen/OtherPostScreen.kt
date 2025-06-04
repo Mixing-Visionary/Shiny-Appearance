@@ -199,12 +199,14 @@ fun OtherPostScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) {
-                            if (imageLiked) {
-                                viewModel.dislikeImage(uuid)
-                                imageLiked = false
-                            } else {
-                                viewModel.likeImage(uuid)
-                                imageLiked = true
+                            if (isLoggedIn) {
+                                if (imageLiked) {
+                                    viewModel.dislikeImage(uuid)
+                                    imageLiked = false
+                                } else {
+                                    viewModel.likeImage(uuid)
+                                    imageLiked = true
+                                }
                             }
                         }
                 )

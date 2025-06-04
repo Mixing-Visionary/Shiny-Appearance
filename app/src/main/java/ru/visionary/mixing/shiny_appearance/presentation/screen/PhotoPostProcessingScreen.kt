@@ -1,5 +1,12 @@
 package ru.visionary.mixing.shiny_appearance.presentation.screen
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -27,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,9 +43,12 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,7 +62,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ru.visionary.mixing.shiny_appearance.R
+import ru.visionary.mixing.shiny_appearance.util.saveBitmapToExternalFile
 import ru.visionary.mixing.shiny_appearance.util.savePictureToGallery
 import kotlin.math.roundToInt
 
@@ -59,17 +74,36 @@ import kotlin.math.roundToInt
 @Composable
 fun PhotoPostProcessingScreen(navController: NavController, uri: Uri) {
     val context = LocalContext.current
+
     val list = listOf(
         R.drawable.brightness,
-        R.drawable.post_processing3,
-        R.drawable.post_processing2,
-        R.drawable.post_processing1,
+        R.drawable.post_processing3
     )
+
     var selectedIndex by remember { mutableIntStateOf(0) }
     val sliderValues =
         remember { mutableStateListOf<Float>().apply { repeat(list.size) { add(50f) } } }
+    var currentSlider by remember { mutableFloatStateOf(sliderValues[0]) }
+    var processedUri by remember { mutableStateOf<Uri?>(null) }
+    var isProcessing by remember { mutableStateOf(false) }
 
-    val sliderPosition = sliderValues[selectedIndex]
+    LaunchedEffect(selectedIndex) {
+        currentSlider = sliderValues[selectedIndex]
+    }
+
+    fun processImage(brightness: Float, contrast: Float) {
+        val scope = CoroutineScope(Dispatchers.Main)
+        scope.launch {
+            isProcessing = true
+            val originalBitmap = uriToBitmap(context, uri)
+            originalBitmap?.let {
+                val updatedBitmap = applyAdjustments(it, brightness, contrast)
+                processedUri = saveBitmapToExternalFile(context, updatedBitmap)
+            }
+            isProcessing = false
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,11 +125,15 @@ fun PhotoPostProcessingScreen(navController: NavController, uri: Uri) {
                     contentDescription = "Назад",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(50.dp)
-
                 )
             }
+
             IconButton(
-                onClick = { navController.navigate("photoFinalProcessingScreen?uri=$uri") },
+                onClick = {
+                    processedUri?.let {
+                        navController.navigate("photoFinalProcessingScreen?uri=$it")
+                    } ?: run { navController.navigate("photoFinalProcessingScreen?uri=$uri") }
+                },
                 modifier = Modifier.size(50.dp)
             ) {
                 Icon(
@@ -106,19 +144,25 @@ fun PhotoPostProcessingScreen(navController: NavController, uri: Uri) {
                 )
             }
         }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.55f)
-                .padding(start = 8.dp, end = 8.dp, top = 5.dp)
+                .padding(horizontal = 8.dp, vertical = 5.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(uri),
-                contentDescription = "Selected Image",
-                modifier = Modifier
-                    .fillMaxSize()
-            )
+            if (isProcessing) {
+                CircularProgressIndicator()
+            } else {
+                Image(
+                    painter = rememberAsyncImagePainter(processedUri ?: uri),
+                    contentDescription = "Edited Image",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
+
         Icon(
             painter = painterResource(id = R.drawable.save),
             contentDescription = "Сохранить",
@@ -126,39 +170,42 @@ fun PhotoPostProcessingScreen(navController: NavController, uri: Uri) {
             modifier = Modifier
                 .size(50.dp)
                 .padding(top = 5.dp)
-                .clickable(interactionSource = remember { MutableInteractionSource() },
-                    indication = null) {
-                    savePictureToGallery(
-                        context = context,
-                        uri = uri,
-                        onSuccess = {
-                            Toast
-                                .makeText(
-                                    context,
-                                    "Сохранено в галерею",
-                                    Toast.LENGTH_SHORT
-                                )
-                                .show()
-                        },
-                        onError = { e ->
-                            Toast
-                                .makeText(
-                                    context,
-                                    "Ошибка при сохранении",
-                                    Toast.LENGTH_LONG
-                                )
-                                .show()
-                        }
-                    )
+                .clickable {
+                    processedUri?.let {
+                        savePictureToGallery(
+                            context = context,
+                            uri = it,
+                            onSuccess = {
+                                Toast
+                                    .makeText(context, "Сохранено в галерею", Toast.LENGTH_SHORT)
+                                    .show()
+                            },
+                            onError = {
+                                Toast
+                                    .makeText(context, "Ошибка при сохранении", Toast.LENGTH_LONG)
+                                    .show()
+                            }
+                        )
+                    }
                 }
         )
+
         Spacer(modifier = Modifier.weight(1f))
+
         Slider(
-            value = sliderPosition,
-            onValueChange = { sliderValues[selectedIndex] = it },
+            value = currentSlider,
+            onValueChange = { currentSlider = it },
+            onValueChangeFinished = {
+                sliderValues[selectedIndex] = currentSlider
+                processImage(
+                    brightness = sliderValues[0],
+                    contrast = sliderValues[1]
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 15.dp),
+            valueRange = 0f..100f,
             colors = SliderDefaults.colors(
                 activeTrackColor = MaterialTheme.colorScheme.primary,
                 inactiveTrackColor = MaterialTheme.colorScheme.surface,
@@ -167,7 +214,7 @@ fun PhotoPostProcessingScreen(navController: NavController, uri: Uri) {
             thumb = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = sliderPosition.roundToInt().toString(),
+                        text = currentSlider.roundToInt().toString(),
                         style = TextStyle(
                             color = MaterialTheme.colorScheme.background,
                             fontSize = 14.sp
@@ -190,10 +237,11 @@ fun PhotoPostProcessingScreen(navController: NavController, uri: Uri) {
                             )
                     )
                 }
-            },
-            valueRange = 0f..100f
+            }
         )
+
         Spacer(modifier = Modifier.weight(1f))
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -221,9 +269,11 @@ fun PhotoPostProcessingScreen(navController: NavController, uri: Uri) {
                                 color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
                             )
-                            .clickable { selectedIndex = index }
+                            .clickable {
+                                selectedIndex = index
+                                currentSlider = sliderValues[index]
+                            }
                     ) {
-
                         Icon(
                             painter = painterResource(id = imageRes),
                             contentDescription = null,
@@ -234,8 +284,48 @@ fun PhotoPostProcessingScreen(navController: NavController, uri: Uri) {
                         )
                     }
                 }
-
             }
         }
     }
 }
+
+
+fun uriToBitmap(context: Context, uri: Uri): Bitmap? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        BitmapFactory.decodeStream(inputStream)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+fun applyAdjustments(bitmap: Bitmap, brightness: Float, contrast: Float): Bitmap {
+    val adjustedBrightness = (brightness - 50f) * 2f
+    val adjustedContrast = contrast / 50f
+
+    val contrastMatrix = ColorMatrix().apply {
+        setScale(adjustedContrast, adjustedContrast, adjustedContrast, 1f)
+    }
+
+    val brightnessMatrix = ColorMatrix(
+        floatArrayOf(
+            1f, 0f, 0f, 0f, adjustedBrightness,
+            0f, 1f, 0f, 0f, adjustedBrightness,
+            0f, 0f, 1f, 0f, adjustedBrightness,
+            0f, 0f, 0f, 1f, 0f
+        )
+    )
+
+    contrastMatrix.postConcat(brightnessMatrix)
+
+    val paint = Paint().apply {
+        colorFilter = ColorMatrixColorFilter(contrastMatrix)
+    }
+
+    val result = Bitmap.createBitmap(bitmap.width, bitmap.height, bitmap.config!!)
+    Canvas(result).drawBitmap(bitmap, 0f, 0f, paint)
+    return result
+}
+
+
