@@ -13,9 +13,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import ru.visionary.mixing.shiny_appearance.presentation.components.FollowingItem
 import ru.visionary.mixing.shiny_appearance.presentation.screen.AuthorizationScreen
+import ru.visionary.mixing.shiny_appearance.presentation.screen.FollowersScreen
+import ru.visionary.mixing.shiny_appearance.presentation.screen.FollowingScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.LoginScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.MainTabScreen
+import ru.visionary.mixing.shiny_appearance.presentation.screen.NotificationScreen
+import ru.visionary.mixing.shiny_appearance.presentation.screen.OtherFollowingScreen
+import ru.visionary.mixing.shiny_appearance.presentation.screen.OtherUserProfileScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.PhotoFinalProcessingScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.PhotoNeuralProcessingScreen
 import ru.visionary.mixing.shiny_appearance.presentation.screen.PhotoPostProcessingScreen
@@ -55,6 +61,33 @@ fun AppNavigation(authViewModel: AuthViewModel = hiltViewModel()) {
 
         composable("authorizationScreen") {
             AuthorizationScreen(navController)
+        }
+
+        composable("followingScreen") {
+            FollowingScreen(navController)
+        }
+
+        composable("followersScreen") {
+            FollowersScreen(navController)
+        }
+
+        composable("notifScreen") {
+            NotificationScreen(navController)
+        }
+
+        composable(
+            route = "otherFollowingScreen?userId={userId}",
+            arguments = listOf(
+                navArgument("userId") {
+                    type = NavType.IntType
+                    nullable = false
+                }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getInt("userId")!!
+            OtherFollowingScreen(
+                userId = userId, navController = navController
+            )
         }
 
         composable("waitingScreen?uuid={uuid}") { backStackEntry ->

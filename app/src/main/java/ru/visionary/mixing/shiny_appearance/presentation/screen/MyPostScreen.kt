@@ -35,6 +35,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,6 +76,12 @@ fun MyPostScreen(
     url: String,
     viewModel: MyPostViewModel = hiltViewModel()
 ) {
+    val comments by viewModel.comments.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getComments(uuid)
+    }
+
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -265,14 +272,6 @@ fun MyPostScreen(
                         }
                 )
             }
-            val immutableList = listOf(
-                "Дима: Отличное фото!",
-                "Даниил: Отличное фото!",
-                "Саша: Отличное фото!",
-                "Максим: Отличное фото!",
-                "Данила: Отличное фото!"
-            )
-            val list = remember { mutableStateListOf(*immutableList.toTypedArray()) }
 
             LazyColumn(
                 modifier = Modifier
@@ -281,8 +280,8 @@ fun MyPostScreen(
                     .padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(list) { text ->
-                    CommentItem(text = text)
+                items(comments) { comment ->
+                    CommentItem(nick = comment.authorNickname, comment = comment.comment, {})
                 }
             }
 
@@ -362,7 +361,15 @@ fun MyPostScreen(
                             modifier = Modifier
                                 .padding(vertical = 10.dp)
                                 .clickable {
-                                    list.add("Нелли: " + comment)
+                                    viewModel.postComment(
+                                        uuid = uuid,
+                                        comment = comment,
+                                        onSuccess = {
+                                            viewModel.getComments(uuid)
+                                        },
+                                        onError = { errorMsg ->
+                                        }
+                                    )
                                     comment = ""
                                     writeComment = false
                                 }

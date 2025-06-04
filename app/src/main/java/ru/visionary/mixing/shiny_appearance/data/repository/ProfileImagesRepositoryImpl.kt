@@ -26,4 +26,24 @@ class ProfileImagesRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
+
+    override suspend fun getOtherUserImages(
+        userId: Int,
+        size: Int,
+        page: Int,
+        protection: String
+    ): Result<ProfileImagesResponse> {
+        return try {
+            val response = service.getOtherUserImages(userId, size, page, protection)
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Response body is null"))
+            } else {
+                Result.failure(Exception("Request failed with code: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

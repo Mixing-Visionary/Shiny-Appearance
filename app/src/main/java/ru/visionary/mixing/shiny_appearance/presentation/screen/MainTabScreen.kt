@@ -1,6 +1,8 @@
 package ru.visionary.mixing.shiny_appearance.presentation.screen
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -87,17 +90,21 @@ fun MainTabScreen(
                     contentDescription = "bell",
                     modifier = Modifier
                         .size(60.dp)
-                        .padding(end = 23.dp),
+                        .padding(end = 23.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { navController.navigate("notifScreen") },
                     tint = MaterialTheme.colorScheme.primary
                 )
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "search",
-                    modifier = Modifier
-                        .size(50.dp)
-                        .padding(end = 8.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+//                Icon(
+//                    imageVector = Icons.Default.Search,
+//                    contentDescription = "search",
+//                    modifier = Modifier
+//                        .size(50.dp)
+//                        .padding(end = 8.dp),
+//                    tint = MaterialTheme.colorScheme.primary
+//                )
 
             }
 
@@ -133,6 +140,22 @@ fun MainTabScreen(
                                         StandardCharsets.UTF_8.toString()
                                     )
                                     OtherPostScreen(innerNavController, uuid, url)
+                                }
+                                composable(
+                                    route = "otherUserProfile?userId={userId}",
+                                    arguments = listOf(
+                                        navArgument("userId") {
+                                            type = NavType.IntType
+                                            nullable = false
+                                        }
+                                    )
+                                ) { backStackEntry ->
+                                    val userId = backStackEntry.arguments?.getInt("userId")!!
+                                    OtherUserProfileScreen(
+                                        innerNavController = innerNavController,
+                                        parentNavController = navController,
+                                        userId = userId
+                                    )
                                 }
                             }
                         }
@@ -170,7 +193,49 @@ fun MainTabScreen(
                     }
                 } else {
                     when (selectedTabIndex) {
-                        0 -> UnauthCreatePicture(navController)
+                        0 -> {
+                            NavHost(
+                                navController = innerNavController,
+                                startDestination = "mainScreen"
+                            ) {
+                                composable("mainScreen") {
+                                    MainScreen(
+                                        parentNavController = navController,
+                                        innerNavController = innerNavController
+                                    )
+                                }
+                                composable("otherPost?uuid={uuid}&url={url}",
+                                    arguments = listOf(
+                                        navArgument("uuid") { defaultValue = "" },
+                                        navArgument("url") { defaultValue = "" }
+                                    )) { backStackEntry ->
+                                    val uuid = backStackEntry.arguments?.getString("uuid") ?: ""
+                                    val encodedUrl =
+                                        backStackEntry.arguments?.getString("url") ?: ""
+                                    val url = URLDecoder.decode(
+                                        encodedUrl,
+                                        StandardCharsets.UTF_8.toString()
+                                    )
+                                    OtherPostScreen(innerNavController, uuid, url)
+                                }
+                                composable(
+                                    route = "otherUserProfile?userId={userId}",
+                                    arguments = listOf(
+                                        navArgument("userId") {
+                                            type = NavType.IntType
+                                            nullable = false
+                                        }
+                                    )
+                                ) { backStackEntry ->
+                                    val userId = backStackEntry.arguments?.getInt("userId")!!
+                                    OtherUserProfileScreen(
+                                        innerNavController = innerNavController,
+                                        parentNavController = navController,
+                                        userId = userId
+                                    )
+                                }
+                            }
+                        }
                         1 -> UnauthCreatePicture(navController)
                         2 -> UnauthProfileScreen(navController)
                         3 -> UnauthSettingsScreen(navController)

@@ -30,14 +30,19 @@ class MainScreenViewModel @Inject constructor(
     val errorMessage: StateFlow<String?> = _errorMessage
 
     init {
-        refresh()
+        loadNextPagePublic("new")
     }
 
-    fun refresh() {
-        viewModelScope.launch { loadNextPagePublic() }
+    fun refresh(sort: String) {
+        viewModelScope.launch {
+            _images.value = emptyList()
+            publicPage = 0
+            isLastPagePublic = false
+            loadNextPagePublic(sort)
+        }
     }
 
-    fun loadNextPagePublic() {
+    fun loadNextPagePublic(sort: String) {
         if (isLoadingMorePublic || isLastPagePublic) return
 
         isLoadingMorePublic = true
@@ -46,7 +51,7 @@ class MainScreenViewModel @Inject constructor(
                 val response = feedRepository.getFeed(
                     size = 30,
                     page = publicPage,
-                    sort = "new"
+                    sort = sort
                 )
                 if (response.isSuccess) {
                     val newImages = response.getOrNull()?.images ?: emptyList()

@@ -105,8 +105,10 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(50.dp)
-                    .clickable(interactionSource = remember { MutableInteractionSource() },
-                        indication = null) {
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
                         savePictureToGallery(
                             context = context,
                             uri = uri,
@@ -137,8 +139,10 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(50.dp)
-                    .clickable(interactionSource = remember { MutableInteractionSource() },
-                        indication = null) { showBottomSheet = true }
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { showBottomSheet = true }
             )
             Icon(
                 painter = painterResource(id = R.drawable.share),
@@ -146,8 +150,10 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(50.dp)
-                    .clickable(interactionSource = remember { MutableInteractionSource() },
-                        indication = null) {
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
                         shareImage(context, uri)
                     }
             )
@@ -178,7 +184,10 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                                         }
                                     }
                                 imageSaveViewModel.saveImage(context, uri, "public")
-                                navController.navigate("mainTabsScreen?index=2")
+                                navController.navigate("mainTabsScreen?index=2") {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             })
                         PublishItem(
                             text = stringResource(id = R.string.to_personal),
@@ -191,7 +200,10 @@ fun PhotoFinalProcessingScreen(navController: NavController, uri: Uri) {
                                         }
                                     }
                                 imageSaveViewModel.saveImage(context, uri, "private")
-                                navController.navigate("mainTabsScreen?index=2")
+                                navController.navigate("mainTabsScreen?index=2") {
+                                    popUpTo(0) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             })
                     }
                 }

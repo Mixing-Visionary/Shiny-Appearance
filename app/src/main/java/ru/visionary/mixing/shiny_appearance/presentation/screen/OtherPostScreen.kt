@@ -33,8 +33,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,6 +59,7 @@ import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.presentation.components.CommentItem
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.OtherPostViewModel
 import ru.visionary.mixing.shiny_appearance.util.downloadImageToExternalFile
 import ru.visionary.mixing.shiny_appearance.util.savePictureToGallery
@@ -70,8 +71,16 @@ fun OtherPostScreen(
     innerNavController: NavController,
     uuid: String,
     url: String,
-    viewModel: OtherPostViewModel = hiltViewModel()
+    viewModel: OtherPostViewModel = hiltViewModel(),
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
+    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
+
+    val comments by viewModel.comments.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getComments(uuid)
+    }
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -89,6 +98,7 @@ fun OtherPostScreen(
     viewModel.getImageByUuid(uuid)
     val imageInfo = viewModel.imageResponse.value
     val authorNick = imageInfo?.authorNickname ?: ""
+    val authorId = imageInfo?.authorId ?: 0
     val scope = rememberCoroutineScope()
 
     Box(
@@ -157,7 +167,9 @@ fun OtherPostScreen(
                     text = "@" + authorNick,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 13.sp,
-                    modifier = Modifier.padding(start = 35.dp)
+                    modifier = Modifier
+                        .padding(start = 35.dp)
+                        .clickable { innerNavController.navigate("otherUserProfile?userId=${authorId}") }
                 )
             }
             Row(
@@ -173,6 +185,10 @@ fun OtherPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {}
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.share),
@@ -180,8 +196,10 @@ fun OtherPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = null) {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
                             coroutineScope.launch {
                                 val uri = downloadImageToExternalFile(context, url)
                                 if (uri != null) {
@@ -200,8 +218,10 @@ fun OtherPostScreen(
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(40.dp)
-                        .clickable(interactionSource = remember { MutableInteractionSource() },
-                            indication = null) {
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
                             coroutineScope.launch {
                                 val uri = downloadImageToExternalFile(context, url)
                                 if (uri != null) {
@@ -236,14 +256,6 @@ fun OtherPostScreen(
                         }
                 )
             }
-            val immutableList = listOf(
-                "Дима: Отличное фото!",
-                "Даниил: Отличное фото!",
-                "Саша: Отличное фото!",
-                "Максим: Отличное фото!",
-                "Данила: Отличное фото!"
-            )
-            val list = remember { mutableStateListOf(*immutableList.toTypedArray()) }
 
             LazyColumn(
                 modifier = Modifier
@@ -252,8 +264,15 @@ fun OtherPostScreen(
                     .padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(list) { text ->
-                    CommentItem(text = text)
+                items(comments) { comment ->
+                    CommentItem(nick = comment.authorNickname, comment = comment.comment,
+                        {
+                            if (comment.authorId.toInt() == viewModel.myUserId.value) {
+                            } else {
+                                innerNavController.navigate("otherUserProfile?userId=${comment.authorId.toInt()}")
+                            }
+                        }
+                    )
                 }
             }
 
@@ -264,80 +283,89 @@ fun OtherPostScreen(
                     }
                 }
             }
-
-            Row(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .border(
-                            width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .clickable { writeComment = true }
-                ) {
-                    Row(
+            if (isLoggedIn) {
+                Row(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+                    Box(
                         modifier = Modifier
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(12.dp)
+                            )
                             .fillMaxWidth()
-                            .padding(end = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
+                            .wrapContentHeight()
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .clickable { writeComment = true }
                     ) {
-                        TextField(value = comment,
-                            textStyle = TextStyle(fontSize = 13.sp),
-                            onValueChange = { newText ->
-                                if (newText.length <= 255) {
-                                    comment = newText
-                                }
-                            },
-                            placeholder = {
-                                Text(
-                                    text = stringResource(id = R.string.comment),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 13.sp
-                                )
-                            },
-                            interactionSource = interactionSource,
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.Transparent,
-                                unfocusedContainerColor = Color.Transparent,
-                                disabledContainerColor = Color.Transparent,
-                                cursorColor = MaterialTheme.colorScheme.onSurface,
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent,
-                            ),
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .focusRequester(focusRequester)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) {
+                                .fillMaxWidth()
+                                .padding(end = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            TextField(value = comment,
+                                textStyle = TextStyle(fontSize = 13.sp),
+                                onValueChange = { newText ->
+                                    if (newText.length <= 255) {
+                                        comment = newText
+                                    }
+                                },
+                                placeholder = {
+                                    Text(
+                                        text = stringResource(id = R.string.comment),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 13.sp
+                                    )
+                                },
+                                interactionSource = interactionSource,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    disabledContainerColor = Color.Transparent,
+                                    cursorColor = MaterialTheme.colorScheme.onSurface,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent,
+                                ),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .focusRequester(focusRequester)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) {
 
-                                }
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ArrowForward,
-                            contentDescription = "icon",
-                            tint = if (writeComment) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                Color.Transparent
-                            },
-                            modifier = Modifier
-                                .padding(vertical = 10.dp)
-                                .clickable {
-                                    list.add("Нелли: " + comment)
-                                    comment = ""
-                                    writeComment = false
-                                }
-                        )
+                                    }
+                            )
+                            Icon(
+                                imageVector = Icons.Default.ArrowForward,
+                                contentDescription = "icon",
+                                tint = if (writeComment) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    Color.Transparent
+                                },
+                                modifier = Modifier
+                                    .padding(vertical = 10.dp)
+                                    .clickable {
+                                        viewModel.postComment(
+                                            uuid = uuid,
+                                            comment = comment,
+                                            onSuccess = {
+                                                viewModel.getComments(uuid)
+                                            },
+                                            onError = { errorMsg ->
+                                            }
+                                        )
+                                        comment = ""
+                                        writeComment = false
+                                    }
+                            )
+                        }
                     }
                 }
             }

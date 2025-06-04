@@ -33,6 +33,9 @@
     <string name="account">"Аккаунт"</string>
     <string name="change_password">"Сменить пароль"</string>
     <string name="enter_new_password">"Введите новый пароль"</string>
+    <string name="error_new_password">"Некорректный пароль "</string>
+    <string name="is_deleting_account">"Вы уверены? "</string>
+    <string name="yes">"Да"</string>
     <string name="logout">"Выйти из аккаунта"</string>
     <string name="delete_account">"Удалить аккаунт"</string>
     <string name="personalization">"Персонализация"</string>
@@ -64,5 +67,11 @@
     <string name="unauth_profile">"Авторизируйтесь, чтобы зайти в свой профиль"</string>
     <string name="enter_to_account">"Войти в аккаунт"</string>
 
+    <string name="following">"Ваши подписки"</string>
+    <string name="other_following">"Подписки"</string>
+    <string name="followers">"На вас подписаны"</string>
+    <string name="notif">"Уведомления"</string>
+    <string name="notif1">"Вы успешно зарегестрировались"</string>
+    <string name="notif2">"Необходимо авторизоваться"</string>
 
 </resources>

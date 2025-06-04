@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import ru.visionary.mixing.shiny_appearance.data.repository.FollowRepositoryImpl
 import ru.visionary.mixing.shiny_appearance.data.repository.ProfileImagesRepositoryImpl
 import ru.visionary.mixing.shiny_appearance.domain.model.DisplayImage
 import ru.visionary.mixing.shiny_appearance.domain.model.ImageResponse
@@ -18,13 +18,14 @@ import ru.visionary.mixing.shiny_appearance.util.getImageUrl
 import javax.inject.Inject
 
 @HiltViewModel
-class MyProfileViewModel @Inject constructor(
+class OtherProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val profileImagesRepositoryImpl: ProfileImagesRepositoryImpl
+    private val profileImagesRepositoryImpl: ProfileImagesRepositoryImpl,
+    private val followRepository: FollowRepositoryImpl
 ) : ViewModel() {
 
-    var userId by mutableStateOf(0)
-        private set
+    private val _userId = MutableStateFlow(0)
+    val userId: StateFlow<Int> = _userId
 
     private val _nickname = MutableStateFlow("")
     val nickname: StateFlow<String> = _nickname
@@ -34,14 +35,8 @@ class MyProfileViewModel @Inject constructor(
 
     private val _publicImages = MutableStateFlow<List<ImageResponse>>(emptyList())
 
-
-    private val _privateImages = MutableStateFlow<List<ImageResponse>>(emptyList())
-
     private val _publicPosts = MutableStateFlow<List<DisplayImage>>(emptyList())
     val publicPosts: StateFlow<List<DisplayImage>> = _publicPosts
-
-    private val _privatePosts = MutableStateFlow<List<DisplayImage>>(emptyList())
-    val privatePosts: StateFlow<List<DisplayImage>> = _privatePosts
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -49,33 +44,42 @@ class MyProfileViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    private val _followResult = MutableStateFlow<Result<Unit>?>(null)
+    val followResult: StateFlow<Result<Unit>?> = _followResult
+
     private var publicPage = 0
     private var isLoadingMorePublic = false
     private var isLastPagePublic = false
 
-    private var privatePage = 0
-    private var isLoadingMorePrivate = false
-    private var isLastPagePrivate = false
-
-    init {
-        refresh()
-    }
-
-    fun refresh() {
+    fun followUser(userId: Int) {
         viewModelScope.launch {
-            fetchUserData()
-            resetAndLoadPublic()
-            resetAndLoadPrivate()
+            val result = followRepository.followUser(userId)
+            _followResult.value = result
         }
     }
 
+    fun refresh(userId: Int) {
+        viewModelScope.launch {
+            fetchUserData(userId)
+            resetAndLoadPublic(userId)
+        }
+    }
 
-    private suspend fun fetchUserData() {
+    fun resetAndLoadPublic(userId: Int) {
+        publicPage = 0
+        isLastPagePublic = false
+        _publicImages.value = emptyList()
+        _publicPosts.value = emptyList()
+        loadNextPagePublic(userId)
+    }
+
+    private suspend fun fetchUserData(userId: Int) {
         _isLoading.value = true
 
-        val userResult = userRepository.getCurrentUser()
+        val userResult = userRepository.getUser(userId)
         if (userResult.isSuccess) {
             val user = userResult.getOrNull()
+            _userId.value = user?.userId!!
             _nickname.value = user?.nickname.orEmpty()
             _description.value = user?.description.orEmpty()
             _errorMessage.value = null
@@ -88,21 +92,14 @@ class MyProfileViewModel @Inject constructor(
         _isLoading.value = false
     }
 
-    fun resetAndLoadPublic() {
-        publicPage = 0
-        isLastPagePublic = false
-        _publicImages.value = emptyList()
-        _publicPosts.value = emptyList()
-        loadNextPagePublic()
-    }
-
-    fun loadNextPagePublic() {
+    fun loadNextPagePublic(userId: Int) {
         if (isLoadingMorePublic || isLastPagePublic) return
 
         isLoadingMorePublic = true
         viewModelScope.launch {
             try {
-                val response = profileImagesRepositoryImpl.getUserImages(
+                val response = profileImagesRepositoryImpl.getOtherUserImages(
+                    userId = userId,
                     size = 30,
                     page = publicPage,
                     protection = "public"
@@ -127,62 +124,4 @@ class MyProfileViewModel @Inject constructor(
             isLoadingMorePublic = false
         }
     }
-
-    fun resetAndLoadPrivate() {
-        privatePage = 0
-        isLastPagePrivate = false
-        _privateImages.value = emptyList()
-        _privatePosts.value = emptyList()
-        loadNextPagePrivate()
-    }
-
-    fun loadNextPagePrivate() {
-        if (isLoadingMorePrivate || isLastPagePrivate) return
-
-        isLoadingMorePrivate = true
-        viewModelScope.launch {
-            try {
-                val response = profileImagesRepositoryImpl.getUserImages(
-                    size = 30,
-                    page = privatePage,
-                    protection = "private"
-                )
-                if (response.isSuccess) {
-                    val newImages = response.getOrNull()?.images ?: emptyList()
-                    if (newImages.isEmpty()) {
-                        isLastPagePrivate = true
-                    } else {
-                        _privateImages.value += newImages
-                        _privatePosts.value += newImages.map {
-                            DisplayImage(uuid = it.uuid, url = getImageUrl(it.uuid))
-                        }
-                        privatePage++
-                    }
-                } else {
-                    _errorMessage.value = "Ошибка загрузки приватных публикаций"
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Ошибка сети: ${e.message}"
-            }
-            isLoadingMorePrivate = false
-        }
-    }
-
-    private val _updateResult = MutableStateFlow<Result<Unit>?>(null)
-    val updateResult = _updateResult.asStateFlow()
-
-    fun updateUser(nickname: String?, description: String?, password: String?) {
-        viewModelScope.launch {
-            val result = userRepository.updateCurrentUser( nickname, description, password)
-            _updateResult.value = result
-        }
-    }
-
-    fun deleteCurrentUser(){
-        viewModelScope.launch {
-            userRepository.deleteCurrentUser()
-        }
-    }
-
-
 }

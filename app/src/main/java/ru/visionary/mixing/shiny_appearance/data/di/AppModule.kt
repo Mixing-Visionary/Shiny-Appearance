@@ -12,7 +12,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.visionary.mixing.shiny_appearance.data.local.TokenAuthenticator
 import ru.visionary.mixing.shiny_appearance.data.local.TokenStorage
 import ru.visionary.mixing.shiny_appearance.data.remote.api.AuthService
+import ru.visionary.mixing.shiny_appearance.data.remote.api.CommentService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.FeedService
+import ru.visionary.mixing.shiny_appearance.data.remote.api.FollowService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.ProfileImagesService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.ImageService
 import ru.visionary.mixing.shiny_appearance.data.remote.api.ProcessingService
@@ -93,9 +95,19 @@ object AppModule {
     }
 
     @Provides
-    fun provideFeedApi(retrofit: Retrofit): FeedService =
+    fun provideFeedService(retrofit: Retrofit): FeedService =
         retrofit.create(FeedService::class.java)
 
+    @Provides
+    @Singleton
+    fun provideCommentService(retrofit: Retrofit): CommentService {
+        return retrofit.create(CommentService::class.java)
+    }
+
+    @Provides
+    fun provideFollowService(retrofit: Retrofit): FollowService {
+        return retrofit.create(FollowService::class.java)
+    }
 
     @Provides
     @Singleton

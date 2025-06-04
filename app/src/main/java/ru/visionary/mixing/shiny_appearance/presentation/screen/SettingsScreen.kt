@@ -1,5 +1,6 @@
 package ru.visionary.mixing.shiny_appearance.presentation.screen
 
+import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,6 +38,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,20 +56,31 @@ import androidx.navigation.NavController
 import ru.visionary.mixing.shiny_appearance.R
 import ru.visionary.mixing.shiny_appearance.presentation.components.SettingsItem
 import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.AuthViewModel
+import ru.visionary.mixing.shiny_appearance.presentation.viewmodel.MyProfileViewModel
 
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    authViewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = hiltViewModel(),
+    myProfileViewModel: MyProfileViewModel = hiltViewModel()
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     var newpassword by remember { mutableStateOf("") }
     var isVisibleChangePass by remember { mutableStateOf(false) }
+    var isDeleting by remember { mutableStateOf(false) }
 
     var proDialog by remember { mutableStateOf(false) }
     var premiumDialog by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    val sharedPrefs =
+        remember { context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE) }
+
+    var notifEnabled by remember {
+        mutableStateOf(sharedPrefs.getBoolean("notif", true))
+    }
     Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(id = R.string.settings),
@@ -106,7 +120,18 @@ fun SettingsScreen(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 25.dp, top = 10.dp)
         )
-        SettingsItem(text = stringResource(id = R.string.notify), R.drawable.bell, onClick = {})
+        SettingsItem(
+            text = stringResource(
+                id = R.string.notify
+            ), icon = if (notifEnabled) {
+                R.drawable.bell
+            } else {
+                R.drawable.notif_off
+            }, onClick = {
+                val newValue = !notifEnabled
+                sharedPrefs.edit().putBoolean("notif", newValue).apply()
+                notifEnabled = newValue
+            })
         Text(
             text = stringResource(id = R.string.account),
             fontSize = 14.sp,
@@ -145,10 +170,18 @@ fun SettingsScreen(
                             textStyle = TextStyle(fontSize = 13.sp),
                             onValueChange = { newText -> newpassword = newText },
                             placeholder = {
-                                Text(
-                                    text = stringResource(id = R.string.enter_new_password),
-                                    fontSize = 13.sp
-                                )
+                                if (!showError) {
+                                    Text(
+                                        text = stringResource(id = R.string.enter_new_password),
+                                        fontSize = 13.sp
+                                    )
+                                } else {
+                                    Text(
+                                        text = stringResource(id = R.string.error_new_password),
+                                        color = Color.Red,
+                                        fontSize = 13.sp
+                                    )
+                                }
                             },
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = Color.Transparent,
@@ -174,8 +207,14 @@ fun SettingsScreen(
                             contentDescription = "check",
                             tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.clickable {
-                                isVisibleChangePass = false
-                            }//временная логика
+                                if (newpassword.length > 7) {
+                                    isVisibleChangePass = false
+                                    myProfileViewModel.updateUser(null, null, newpassword)
+                                } else {
+                                    newpassword = ""
+                                    showError = true
+                                }
+                            }
                         )
                     }
                 }
@@ -186,12 +225,100 @@ fun SettingsScreen(
             icon = R.drawable.logout,
             onClick = {
                 authViewModel.logout()
-                navController.navigate("loginScreen")
+                navController.navigate("loginScreen") {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
             })
         SettingsItem(
             text = stringResource(id = R.string.delete_account),
             icon = R.drawable.delete,
-            onClick = {})
+            onClick = {
+                isDeleting = true
+            })
+
+        if (isDeleting) {
+            Row(modifier = Modifier.padding(start = 15.dp, end = 15.dp, top = 10.dp)) {
+                Box(
+                    modifier = Modifier
+                        .shadow(
+                            elevation = 20.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            clip = false
+                        )
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clickable { }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(end = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        TextField(value = newpassword,
+                            textStyle = TextStyle(fontSize = 13.sp),
+                            readOnly = true,
+                            onValueChange = {},
+                            placeholder = {
+                                Text(
+                                    text = stringResource(id = R.string.is_deleting_account),
+                                    color = Color.Red,
+                                    fontSize = 13.sp
+                                )
+                            },
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                disabledContainerColor = Color.Transparent,
+                                cursorColor = MaterialTheme.colorScheme.onSurface,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                            ),
+                            modifier = Modifier
+                                .wrapContentWidth()
+                                .focusRequester(focusRequester)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
+
+                                })
+                        Row(
+                            modifier = Modifier.wrapContentSize(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.yes),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.check),
+                                contentDescription = "delete",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.clickable {
+                                    authViewModel.logout()
+                                    myProfileViewModel.deleteCurrentUser()
+                                    navController.navigate("loginScreen") {
+                                        popUpTo(0) { inclusive = true }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         Text(
             text = stringResource(id = R.string.personalization),
             fontSize = 14.sp,
@@ -288,7 +415,7 @@ fun CustomProDialog(onDismiss: () -> Unit) {
                                     color = MaterialTheme.colorScheme.primary,
                                     shape = RoundedCornerShape(48.dp)
                                 )
-                                .clickable { }
+                                .clickable { onDismiss() }
                         ) {
                             Row(
                                 modifier = Modifier
@@ -397,7 +524,7 @@ fun CustomPremiumDialog(onDismiss: () -> Unit) {
                                     color = MaterialTheme.colorScheme.primary,
                                     shape = RoundedCornerShape(48.dp)
                                 )
-                                .clickable { }
+                                .clickable { onDismiss() }
                         ) {
                             Row(
                                 modifier = Modifier

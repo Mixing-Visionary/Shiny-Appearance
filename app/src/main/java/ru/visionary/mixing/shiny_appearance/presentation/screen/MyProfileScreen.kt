@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -90,9 +91,12 @@ fun MyProfileScreen(
         mutableStateOf(descFromVm)
     }
     val nicknameFromVm by viewModel.nickname.collectAsState()
-    var textNik by remember("@"+nicknameFromVm) {
-        mutableStateOf("@"+nicknameFromVm)
+    var textNik by remember("@" + nicknameFromVm) {
+        mutableStateOf("@" + nicknameFromVm)
     }
+
+    var isFocused by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(gridState, selectedButton) {
         snapshotFlow {
@@ -147,11 +151,8 @@ fun MyProfileScreen(
                             fontWeight = FontWeight.Bold,
                         ),
                         singleLine = true,
-                        onValueChange = { newText ->
-                            if (newText.length <= maxCharsNik) {
-                                textNik = newText
-                            }
-                        },
+                        onValueChange = {},
+                        readOnly = true,
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
@@ -182,7 +183,11 @@ fun MyProfileScreen(
                         contentDescription = "people",
                         modifier = Modifier
                             .size(50.dp)
-                            .clickable {
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                parentNavController.navigate("followingScreen")
                             }
                     )
                     Icon(
@@ -191,6 +196,10 @@ fun MyProfileScreen(
                         contentDescription = "stats",
                         modifier = Modifier
                             .size(50.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { parentNavController.navigate("followersScreen") }
                     )
                     Icon(
                         imageVector = Icons.Filled.FavoriteBorder,
@@ -228,6 +237,7 @@ fun MyProfileScreen(
                                 val lines = newText.lines()
                                 if (lines.size <= maxLines && newText.length <= maxCharsDesc) {
                                     textDescription = newText
+                                    viewModel.updateUser(null, textDescription, null)
                                 }
                             },
                             colors = TextFieldDefaults.colors(
